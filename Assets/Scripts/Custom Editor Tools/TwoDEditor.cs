@@ -6,6 +6,7 @@
 /// Code can be found from here: https://forum.unity.com/threads/changing-the-background-color-for-beginhorizontal.66015/
 /// </summary>
 
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.Collections;
@@ -77,3 +78,4 @@ namespace TwoDTools
 
     }
 }
+#endif
