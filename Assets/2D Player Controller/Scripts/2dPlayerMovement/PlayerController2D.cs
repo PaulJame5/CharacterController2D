@@ -49,8 +49,14 @@ namespace TwoDTools
         public float currentSpeed = 0;
         public float maximumSpeed = 12f; // minimumSpeed is zero opposite direction is negative max
 
+        #region Raycast Setup
         [Tooltip("This is the floor walls and ceilings of our game world")]
+        public int horizontalRaycasts = 5;
+        public float raycastSpreadAmountHorizontal = 0f;
+        public float raycastLengthHorizontal = .31f;
         public LayerMask terrainLayer;
+        public string[] collsionOptions = { "Terrain", "Ice", "Water" };
+        #endregion // Raycast Setup
         #endregion // Required Movement Variables
 
 
@@ -69,6 +75,7 @@ namespace TwoDTools
         #endregion //Air Acceleration Variables
         #endregion //Ground Acceleration Variables
         #endregion // Player Movement
+
 
         void Start()
         {
@@ -115,16 +122,42 @@ namespace TwoDTools
 [CustomEditor(typeof(TwoDTools.PlayerController2D))]
 public class PlayerController2DEditor : Editor
 {
+    GUIStyle titles = new GUIStyle();
+    GUIStyle miniTitles = new GUIStyle();
+
+
+    void SetupTitlesGUIStyle()
+    {
+        titles.normal.background = TwoDTools.TwoDEditor.MakeTex(100, 1, Color.black);
+        titles.fontStyle = FontStyle.BoldAndItalic;
+        titles.fontSize = 14;
+        titles.alignment = TextAnchor.UpperCenter;
+        titles.normal.textColor = Color.white;
+    }
+    void SetupMiniTitlesGUIStyle()
+    {
+        miniTitles.normal.background = TwoDTools.TwoDEditor.MakeTex(70, 1, Color.black);
+        miniTitles.fontStyle = FontStyle.BoldAndItalic;
+        miniTitles.fontSize = 10;
+        miniTitles.alignment = TextAnchor.UpperCenter;
+        miniTitles.normal.textColor = Color.white;
+    }
+
     override public void OnInspectorGUI()
     {
+        SetupTitlesGUIStyle();
+        SetupMiniTitlesGUIStyle();
         var playerController = target as TwoDTools.PlayerController2D;
 
-        playerController.usePlayerMovement = EditorGUILayout.Toggle("Use Player Controller", playerController.usePlayerMovement);
+        ///=======================================================================================================
+        //You can edit this to take your own Input Manager class
+        playerController.input = (TwoDTools.PlayerController2DInput)EditorGUILayout.ObjectField("Input Manager", playerController.input, typeof(TwoDTools.PlayerController2DInput), true);
+        ///========================================================================================================
+
         switch (playerController.usePlayerMovement)
         {
             case true:
-                // You can edit this to take your own Input Manager class
-                playerController.input = (TwoDTools.PlayerController2DInput)EditorGUILayout.ObjectField("Input Manager", playerController.input, typeof(TwoDTools.PlayerController2DInput), true);
+                GUILayout.Label("Player Movement", titles);
                 playerController.AddPlayerMovement();
                 EditorGUI.BeginDisabledGroup(true); 
                 // We only want the current speed as a readonly but still accessible by other classes/components for writing to
@@ -132,21 +165,69 @@ public class PlayerController2DEditor : Editor
                 EditorGUI.EndDisabledGroup();
 
                 playerController.maximumSpeed = EditorGUILayout.FloatField("Maximum Speed", playerController.maximumSpeed);
-                playerController.terrainLayer = EditorGUILayout.LayerField("Collision Layers", playerController.terrainLayer);
 
-                //myScript.increaseAmount = EditorGUILayout.BeginToggleGroup("Move in Positive Direction", myScript.increaseAmount);
-                //EditorGUILayout.EndToggleGroup();
-                //myScript.orderInLayer = EditorGUILayout.IntField("Material Order In Layer", myScript.orderInLayer);
-                //GUILayout.BeginHorizontal();
-                //myScript.spriteLine = (Material)EditorGUILayout.ObjectField("Attached Material", myScript.spriteLine, typeof(Material), false);
-                //GUILayout.EndHorizontal();
+                AccelerationGUIDisplay(playerController);
+
+
+                GUILayout.Label("Raycast Setup", miniTitles);
+                RaycastGUISetup(playerController);
+
+               
+                if (GUILayout.Button("Remove PlayerMovement Component"))
+                {
+                    playerController.usePlayerMovement = false;
+                    return;
+                }
                 break;
 
             case false:
+                if (GUILayout.Button("Add PlayerMovement Component"))
+                {
+                    playerController.usePlayerMovement = true;
+                    return;
+                }
                 playerController.RemovePlayerMovement();
                 break;
         }
         //EditorGUIUtility.ExitGUI();
+
+    }
+
+    void RaycastGUISetup(TwoDTools.PlayerController2D playerController)
+    {
+        playerController.horizontalRaycasts = EditorGUILayout.IntField("Amount of Raycasts", playerController.horizontalRaycasts);
+
+        playerController.raycastSpreadAmountHorizontal = EditorGUILayout.FloatField("Spread Amount", playerController.raycastSpreadAmountHorizontal);
+        
+        playerController.raycastLengthHorizontal = EditorGUILayout.FloatField("Length", playerController.raycastLengthHorizontal);
+
+        playerController.terrainLayer = TwoDTools.TwoDEditor.LayerMaskField("Collision Flags", playerController.terrainLayer);
+
+    }
+
+    void AccelerationGUIDisplay(TwoDTools.PlayerController2D playerController)
+    {
+        playerController.useAcceleration = EditorGUILayout.Toggle("Use Acceleration", playerController.useAcceleration);
+
+        switch (playerController.useAcceleration)
+        {
+            case true:
+                playerController.acceleration = EditorGUILayout.FloatField("Acceleration", playerController.acceleration);
+                playerController.useDeceleration = EditorGUILayout.Toggle("Use Deceleration", playerController.useDeceleration);
+
+                switch (playerController.useDeceleration)
+                {
+                    case true:
+                        playerController.deceleration = EditorGUILayout.FloatField("Deceleration", playerController.deceleration);
+
+                        break;
+                    case false:
+                        break;
+                }
+                break;
+            case false:
+                break;
+        }
 
     }
 }
