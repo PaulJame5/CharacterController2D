@@ -183,9 +183,24 @@ namespace TwoDTools
         {
             playerMovement.MovementUpdate();
             playerJump.JumpFixedUpdate();
-
+            ApplyGravityCalculation();
             // Apply Movement Calculation Results Here
             //Physics Checks
+            if (playerState.slopeAngleFront <= PlayerState.MAX_SLOPE_LIMIT)
+            {
+                if (playerState.IsTouchingWall())
+                {
+                    playerMovement.ClimbSlope();
+                }
+            }
+            myTransform.position += currentVelocity * Time.fixedDeltaTime;
+
+            InterpolatePosition();
+
+        }
+
+        public void ApplyGravityCalculation()
+        {
             if (!playerState.IsTouchingFloor())
             {
                 if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
@@ -208,17 +223,6 @@ namespace TwoDTools
 
                 }
             }
-            if (playerState.slopeAngleFront <= PlayerState.MAX_SLOPE_LIMIT)
-            {
-                if (playerState.IsTouchingWall())
-                {
-                    playerMovement.ClimbSlope();
-                }
-            }
-            myTransform.position += currentVelocity * Time.fixedDeltaTime;
-
-            InterpolatePosition();
-
         }
 
 

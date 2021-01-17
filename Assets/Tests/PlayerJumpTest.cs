@@ -41,8 +41,65 @@ namespace Tests
             input.SetJumpButtonHeld();
             Assert.AreEqual(input.JumpButtonHeld(), true);
             player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
-            //player.GetComponent<TwoDTools.PlayerController2D>().Update();
+
             Assert.Greater(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
+
+        }
+        // A Test behaves as an ordinary method
+        [Test]
+        public void PlayerJumpHeightKeepsIncreasingButtonHeld()
+        {
+
+            GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerController2D>().Awake();
+
+            player.GetComponent<TwoDTools.PlayerJump>().Start();
+            player.GetComponent<TwoDTools.PlayerWallJump>().Start();
+            TwoDTools.PlayerController2DInput input = player.GetComponent<TwoDTools.PlayerController2DInput>();
+            // Initial Jump
+            Assert.AreEqual(input.JumpButtonHeld(), false);
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true);
+            input.SetJumpButtonPressed();
+            input.SetJumpButtonHeld();
+
+            Assert.AreEqual(input.JumpButtonHeld(), true);
+            player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
+            player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(false);
+
+            Assert.Greater(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
+            float previous = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y;
+
+            // Still Held
+            input.SetJumpButtonHeld();
+            Assert.AreEqual(input.JumpButtonHeld(), true);
+            player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
+            player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            Assert.Greater(previous, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y);
+            Assert.Greater(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
+
+            // Let Go
+            input.ResetInput();
+            input.SetJumpButtonLetGo();
+            Assert.AreEqual(input.JumpButtonHeld(), false);
+            Assert.AreEqual(input.JumpButtonLetGo(), true);
+            player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
+            player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            Assert.LessOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 1);
+
+            input.ResetInput();
+            Assert.AreEqual(input.JumpButtonHeld(), false);
+            Assert.AreEqual(input.JumpButtonLetGo(), false);
+
+            player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
+            player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+
+            Assert.LessOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
+
 
         }
 
