@@ -55,6 +55,7 @@ namespace TwoDTools
 
         public void Awake()
         {
+            ResetAllStates();
             myTransform = transform;
             playerController = GetComponent<TwoDTools.PlayerController2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
