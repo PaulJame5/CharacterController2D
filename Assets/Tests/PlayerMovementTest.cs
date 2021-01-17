@@ -68,9 +68,9 @@ namespace Tests
             float previousX = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
             float previousY = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y;
 
-            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlope(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeFront(true);
             player.GetComponent<TwoDTools.PlayerState>().slopeAngleFront = 50;
-            player.GetComponent<TwoDTools.PlayerMovement>().MoveUpSlope();
+            player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
 
             Assert.Greater(previousX, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x);
             Assert.Less(previousY, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y);

@@ -50,8 +50,11 @@ namespace TwoDTools
 #if UNITY_EDITOR
         public bool showMovementGUI = true;
 #endif
+
         // We use Vector3 to avoid any casting operations
         public Vector3 currentVelocity;
+        public Vector3 externalForceVelocity;
+        public Vector3 normalisedVelocity;
         TwoDTools.PlayerMovement playerMovement;
         public float maximumHorizontalVelocity = 12f; // minimumSpeed is zero opposite direction is negative max
 
@@ -125,29 +128,23 @@ namespace TwoDTools
         #endregion
 
 
-        private Transform myTransform;
         private float initialXScale;
         private SpriteRenderer spriteRenderer;
         private BoxCollider2D boxCollider;
 
-        #region Prediction Collision Correction
-        Vector3 positionBeforeCollision;
-        Vector3 velocityBeforePrediction;
-        #endregion
+        private Rigidbody2D rb;
 
 
         // WallJump
         TwoDTools.PlayerWallJump playerWallJump;
         public void Awake()
         {
+            rb = GetComponent<Rigidbody2D>();
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             initialXScale = transform.localScale.x;
             jumpType = JumpType.MeatSquare;
             playerState = GetComponent<TwoDTools.PlayerState>();
-
-            // MicroOptimisation
-            myTransform = transform;
 
             playerMovement = GetComponent<TwoDTools.PlayerMovement>();
 
@@ -178,47 +175,80 @@ namespace TwoDTools
 
         public void FixedUpdate()
         {
+            ApplyGravtiy();
             playerJump.JumpFixedUpdate();
             playerMovement.MovementUpdate();
-            ApplyGravityCalculation();
+            ApplyExternalForces();
 
-            if(playerState.IsTouchingSlope())
-            {
-                playerMovement.MoveUpSlope();
-            }
-            GetComponent<Rigidbody2D>().velocity = currentVelocity;
+            //ApplyGravityCalculation();
+
+            NormaliseVelocity();
+            rb.velocity = normalisedVelocity;
         }
 
-        public void ApplyGravityCalculation()
+        private void NormaliseVelocity()
         {
-            if (playerState.IsTouchingFloor())
+            if (playerState.IsTouchingSlope() && !playerState.IsJumping())
             {
-                if (currentVelocity.y < 0.0f)
-                {
-                    currentVelocity.y = 0;
-                    return;
-                }
-              
+                normalisedVelocity = playerMovement.MoveOnSlope();
+            }
+            else
+            {
+                normalisedVelocity = currentVelocity;
+            }
+        }
+
+        public TwoDTools.PlayerController2D Get()
+        {
+            return this;
+        }
+
+        void ApplyExternalForces()
+        {
+            currentVelocity += externalForceVelocity * Time.fixedDeltaTime;
+        }
+
+
+        public void ApplyGravtiy()
+        {
+            currentVelocity.y -= GRAVITY * Time.fixedDeltaTime;
+            if (currentVelocity.y > MAX_FALL_SPEED)
+            {
+                currentVelocity.y = MAX_FALL_SPEED;
+            }
+
+            else if (currentVelocity.y < -MAX_FALL_SPEED)
+            {
+                currentVelocity.y = -MAX_FALL_SPEED;
             }
             if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
             {
                 currentVelocity.y = 0;
+                externalForceVelocity.y = 0;
                 return;
             }
-
-            currentVelocity.y -= GRAVITY * Time.fixedDeltaTime;
-
-            if (currentVelocity.y > MAX_FALL_SPEED)
+            if (playerState.IsJumping())
             {
-                currentVelocity.y = MAX_FALL_SPEED;
                 return;
             }
-
-            if (currentVelocity.y < -MAX_FALL_SPEED)
+            if (playerState.IsTouchingFloor())
             {
-                currentVelocity.y = -MAX_FALL_SPEED;
+                if (currentVelocity.y <= 0.0f)
+                {
+                    currentVelocity.y = 0;
+                    return;
+                }
+
             }
-        }
+
+            if (playerState.IsTouchingSlope())
+            {
+                if (currentVelocity.y <= 0.0f)
+                {
+                    currentVelocity.y = 0;
+                }
+            }
+        } // End Apply Gravity
 
         public PlayerController2DInput GetInput()
         {
@@ -295,6 +325,14 @@ namespace TwoDTools
         }
 
 #endif
+
+        void OnCollision2DStay(Collider2D col)
+        {
+            if (col.CompareTag("Terrain"))
+            {
+                currentVelocity.y = 0;
+            }
+        }
 
     }
 }
@@ -397,6 +435,7 @@ public class PlayerController2DEditor : UnityEditor.Editor
         EditorGUI.BeginDisabledGroup(true);
         // We only want the current velocity as a readonly but still accessible by other classes/components for writing to
         playerController.currentVelocity = EditorGUILayout.Vector2Field("Current Speed", playerController.currentVelocity);
+        playerController.normalisedVelocity = EditorGUILayout.Vector2Field("Normalised Speed", playerController.normalisedVelocity);
         EditorGUI.EndDisabledGroup();
 
         playerController.maximumHorizontalVelocity = EditorGUILayout.FloatField("Maximum Speed", playerController.maximumHorizontalVelocity);

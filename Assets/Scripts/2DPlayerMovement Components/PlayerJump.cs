@@ -21,20 +21,23 @@ namespace TwoDTools
         {
             if(!input.JumpButtonPressed() && !input.JumpButtonLetGo() && !input.JumpButtonHeld())
             {
-                if(playerController.playerState.IsTouchingFloor() == false && playerController.currentVelocity.y > 0)
+                if(!playerController.playerState.IsTouchingFloor() && playerController.currentVelocity.y > 0)
                 {
                     playerController.currentVelocity.y = 0;
+                    playerController.playerState.NotJumping();
                 }
                 return;
             }
             if(input.JumpButtonPressed())
             {
                 CalcualteJump();
+                playerController.playerState.Jumping();
                 return;
             }
             if(input.JumpButtonLetGo())
             {
                 CalculateForWhenJumpButtonLetGo();
+                playerController.playerState.NotJumping();
                 return;
             }
         }
@@ -51,15 +54,11 @@ namespace TwoDTools
 
         void CalcualteJump()
         {
-            if (!playerController.playerState.IsTouchingFloor())
+            if (!playerController.playerState.IsTouchingFloor() && !playerController.playerState.IsTouchingSlope())
             {
                 return;
             }
 
-            if((playerController.currentVelocity.y > 0.01f && !playerController.playerState.IsTouchingSlope()))
-            {
-                return;
-            }
 
             switch (playerController.jumpType)
             {
@@ -78,6 +77,7 @@ namespace TwoDTools
         {
             if(playerController.currentVelocity.y < 0)
             {
+                playerController.playerState.NotJumping();
                 return;
             }
 
