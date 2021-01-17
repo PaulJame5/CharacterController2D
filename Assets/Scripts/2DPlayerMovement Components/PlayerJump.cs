@@ -21,6 +21,10 @@ namespace TwoDTools
         {
             if(!input.JumpButtonPressed() && !input.JumpButtonLetGo() && !input.JumpButtonHeld())
             {
+                if(playerController.playerState.IsTouchingFloor() == false && playerController.currentVelocity.y > 0)
+                {
+                    playerController.currentVelocity.y = 0;
+                }
                 return;
             }
             if(input.JumpButtonPressed())

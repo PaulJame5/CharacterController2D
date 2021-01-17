@@ -21,7 +21,7 @@ namespace TwoDTools
 {
     public class PlayerState : MonoBehaviour
     {
-        public bool touchingWall;
+        private bool touchingWall;
         private bool touchingFloor;
         private bool touchingCeiling;
         private bool touchingWallBehind;
@@ -64,15 +64,13 @@ namespace TwoDTools
         public void UpdatePlayerState()
         {
             // Horizontal Checks
-            touchingWall = TouchingTerrain(myTransform.right, CheckType.Horizontal, playerController.horizontalRaycasts, playerController.raycastLengthHorizontal);
+            TouchingTerrain(myTransform.right, CheckType.Horizontal, playerController.horizontalRaycasts, playerController.raycastLengthHorizontal);
             touchingWallBehind = TouchingTerrain(-myTransform.right, CheckType.Horizontal, playerController.horizontalRaycasts, playerController.raycastLengthHorizontal);
             
             // Vertical Checks
             touchingCeiling = TouchingTerrain(myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical);
             touchingFloor = TouchingTerrain(-myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical);
 
-
-            
         }
 
 
@@ -167,6 +165,11 @@ namespace TwoDTools
             return touchingSlope;
         }
 
+        public void SetIsTouchingSlope(bool isTouchingSlope)
+        {
+            touchingSlope = isTouchingSlope;
+        }
+
         public void ResetTouchingSlope()
         {
             touchingSlope = false;
@@ -186,11 +189,20 @@ namespace TwoDTools
         {
             isDead = state;
         }
-        public void SetIsDead()
+        public void Kill()
         {
             isDead = true;
         }
 
+        void CheckSlopeAngle()
+        {
+            if(slopeAngleFront <= MAX_SLOPE_LIMIT)
+            {
+                touchingSlope = true;
+                return;
+            }
+            touchingSlope = false;
+        }
 
         private bool TouchingTerrain(Vector2 direction, CheckType checkType, int numberOfRaycasts, float length)
         {
@@ -238,20 +250,23 @@ namespace TwoDTools
                     {
                         case CheckType.Horizontal:
                             point.x = hitRay.point.x;
-
-                            if (i == numberOfRaycasts - 1)
+                            if (i == 0 && (Vector3)direction == myTransform.right)
                             {
                                 slopeAngleFront = Vector2.Angle(hitRay.normal, Vector2.up);
-                                touchingSlope = true;
+                                CheckSlopeAngle();
                             }
-                            
+                            else if (i > 0 && (Vector3)direction == myTransform.right)
+                            {
+                                
+                                touchingWall = true;
+                            }
                             break;
                         case CheckType.Vertical:
                             point.y = hitRay.point.y;
                             break;
                     }
 #if UNITY_EDITOR
-                    if (i == numberOfRaycasts - 1)
+                    if (i == 0)
                     {
                         Debug.DrawRay(pos + (Vector2)transform.position, direction * length * scaleToUse, Color.green);
                         hit = true;
@@ -263,6 +278,13 @@ namespace TwoDTools
 #endif
                     return true;
                 }
+                else
+                {
+                    if (checkType == CheckType.Horizontal && i == 0 && (Vector3)direction == myTransform.right)
+                    {
+                        touchingSlope = false;
+                    }
+                }
 #if UNITY_EDITOR
                 Debug.DrawRay(pos + (Vector2)transform.position, direction * length * scaleToUse, Color.blue);
 #endif
@@ -272,55 +294,5 @@ namespace TwoDTools
 #endif
             return false;
         } // End Touch Wall
-
-
-        //void OnTriggerEnter2D(Collider2D col)
-        //{
-        //    if (col.CompareTag("Saw") || col.CompareTag("Fire"))
-        //    {
-        //        isDead = true;
-        //        return;
-        //    }
-        //    if (col.CompareTag("Finish"))
-        //    {
-        //        isFinishedLevel = true;
-        //    }
-        //}
-        //void OnTriggerStay2D(Collider2D col)
-        //{
-        //    if (col.CompareTag("Saw") || col.CompareTag("Fire"))
-        //    {
-        //        isDead = true;
-        //        return;
-        //    }
-        //    if (col.CompareTag("Finish"))
-        //    {
-        //        isFinishedLevel = true;
-        //    }
-        //}
-        //void OnCollisionEnter2D(Collision2D col)
-        //{
-        //    if (col.transform.CompareTag("Saw") || col.transform.CompareTag("Fire"))
-        //    {
-        //        isDead = true;
-        //        return;
-        //    }
-        //    if (col.transform.CompareTag("Finish"))
-        //    {
-        //        isFinishedLevel = true;
-        //    }
-        //}
-        //void OnCollisionStay2D(Collision2D col)
-        //{
-        //    if (col.transform.CompareTag("Saw") || col.transform.CompareTag("Fire"))
-        //    {
-        //        isDead = true;
-        //        return;
-        //    }
-        //    if(col.transform.CompareTag("Finish"))
-        //    {
-        //        isFinishedLevel = true;
-        //    }
-        //}
     }
 }

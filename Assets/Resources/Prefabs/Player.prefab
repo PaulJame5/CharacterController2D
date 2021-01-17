@@ -183,7 +183,7 @@ MonoBehaviour:
   raycastSpreadAmountHorizontal: -0.33
   raycastLengthHorizontal: 0.34
   verticalRaycasts: 5
-  raycastSpreadAmountVertical: -0.3
+  raycastSpreadAmountVertical: -0.03
   raycastLengthVertical: 0.31
   terrainLayer:
     serializedVersion: 2
@@ -247,4 +247,3 @@ MonoBehaviour:
   touchingWall: 0
   point: {x: 0, y: 0}
   slopeAngleFront: 0
-  blood: {fileID: 7956771316735276835, guid: c82794be91102dc4995d443555a6a0dc, type: 3}
