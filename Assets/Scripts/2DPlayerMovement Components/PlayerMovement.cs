@@ -29,7 +29,7 @@ namespace TwoDTools
         private TwoDTools.PlayerController2DInput input;
 
         // Called before first frame
-        void Start()
+        public void Start()
         {
             playerController = GetComponent<TwoDTools.PlayerController2D>();
             input = playerController.GetInput();
@@ -48,12 +48,12 @@ namespace TwoDTools
             {
                 if (playerController.playerState.IsTouchingWall())
                 {
-                    //if (playerController.playerState.IsTouchingSlope())
-                    //{
-                    //    Decelerate();
-                    //    ClimbSlope();
-                    //    return;
-                    //}
+                    if (playerController.playerState.IsTouchingSlope())
+                    {
+                        Decelerate();
+                        MoveUpSlope();
+                        return;
+                    }
                     playerController.currentVelocity.x = 0;
                     return;
                 }
@@ -82,74 +82,122 @@ namespace TwoDTools
             }
         }
 
-        void Decelerate()
+        public void MoveUpSlope()
         {
-            if(!playerController.useAcceleration)
+            ClimbUpSlope();
+        }
+
+        public void Decelerate()
+        {
+            if(NotUsingAccelerationCalculation())
             {
-                playerController.currentVelocity.x = 0;
                 return;
             }
 
-            if (playerController.useAirMomentum)
+            if (AirDecellerate())
             {
-                if (!playerController.playerState.IsTouchingFloor())
-                {
-                    // Moving to the right
-                    if (playerController.currentVelocity.x > 0)
-                    {
-                        playerController.currentVelocity.x -= playerController.airDeceleration * Time.deltaTime;
-
-                        if (playerController.currentVelocity.x < 0)
-                        {
-                            playerController.currentVelocity.x = 0;
-                        }
-                        return;
-                    }
-                    // Moving to the left
-                    if (playerController.currentVelocity.x < 0)
-                    {
-                        playerController.currentVelocity.x += playerController.airDeceleration * Time.deltaTime;
-
-                        if (playerController.currentVelocity.x > 0)
-                        {
-                            playerController.currentVelocity.x = 0;
-                        }
-                        return;
-                    }
-                }
-            } // end air momentum
-
-            // Moving to the right
-            if(playerController.currentVelocity.x > 0)
-            {
-                playerController.currentVelocity.x -= playerController.deceleration * Time.deltaTime;
-
-                if(playerController.currentVelocity.x < 0)
-                {
-                    playerController.currentVelocity.x = 0;
-                }
                 return;
             }
 
+            if(DecelerateMovingRight())
+            {
+                return;
+            }
+
+            if(DecelerateMovingLeft())
+            {
+                return;
+            }
+        }
+
+        bool DecelerateMovingRight()
+        {
             // Moving to the left
             if (playerController.currentVelocity.x < 0)
             {
-                playerController.currentVelocity.x += playerController.deceleration * Time.deltaTime;
+                return false;
+            }
+            playerController.currentVelocity.x -= playerController.deceleration * Time.fixedDeltaTime;
 
+            if (playerController.currentVelocity.x < 0)
+            {
+                playerController.currentVelocity.x = 0;
+            }
+            return true;
+        }
+
+        bool DecelerateMovingLeft()
+        {
+            // Moving to the Right
+            if (playerController.currentVelocity.x > 0)
+            {
+                return false;
+            }
+            playerController.currentVelocity.x += playerController.deceleration * Time.fixedDeltaTime;
+
+            if (playerController.currentVelocity.x > 0)
+            {
+                playerController.currentVelocity.x = 0;
+            }
+            return true;
+        }
+
+        bool NotUsingAccelerationCalculation()
+        {
+            if (playerController.useAcceleration)
+            {
+                return false;
+            }
+            if (playerController.playerState.IsTouchingSlope())
+            {
+                if (!(playerController.input.JumpButtonHeld() || playerController.input.JumpButtonPressed()))
+                {
+                    playerController.currentVelocity.y = 0;
+                }
+            }
+            playerController.currentVelocity.x = 0;
+            return true;
+        }
+
+        private bool AirDecellerate()
+        {
+            if (!playerController.useAirMomentum)
+            {
+                return false;
+            }
+            if (!playerController.playerState.IsTouchingFloor())
+            {
+                // Moving to the right
                 if (playerController.currentVelocity.x > 0)
                 {
-                    playerController.currentVelocity.x = 0;
+                    playerController.currentVelocity.x -= playerController.airDeceleration * Time.fixedDeltaTime;
+
+                    if (playerController.currentVelocity.x < 0)
+                    {
+                        playerController.currentVelocity.x = 0;
+                    }
+                    return true;
                 }
-                return;
+                // Moving to the left
+                if (playerController.currentVelocity.x < 0)
+                {
+                    playerController.currentVelocity.x += playerController.airDeceleration * Time.fixedDeltaTime;
+
+                    if (playerController.currentVelocity.x > 0)
+                    {
+                        playerController.currentVelocity.x = 0;
+                    }
+                    return true;
+                }
             }
-        } // end Decellerate
+            return false;
+        }
 
-
-        void AccelerateRight()
+        public void AccelerateRight()
         {
             if (playerController.playerState.IsTouchingWall())
             {
-                if (playerController.playerState.IsTouchingSlope())
+                if (playerController.playerState.IsTouchingSlope() == false)
                 {
                     playerController.currentVelocity.x = 0;
                     return;
@@ -161,44 +209,45 @@ namespace TwoDTools
                 return;
             }
 
-            // MAx Acceration reached
-            if(playerController.currentVelocity.x >= playerController.maximumHorizontalVelocity)
+            // Max Acceration reached
+            if (playerController.currentVelocity.x >= playerController.maximumHorizontalVelocity)
             {
                 playerController.currentVelocity.x = playerController.maximumHorizontalVelocity;
                 return;
             }
-            
-            if(!playerController.useAirMomentum)
+
+            if (!playerController.useAirMomentum)
             {
-                if(!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
+                if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
                 {
-                    playerController.currentVelocity.x += playerController.acceleration * Time.deltaTime;
+                    playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
                     return;
                 }
-                playerController.currentVelocity.x += playerController.sprintAcceleration * Time.deltaTime;
+                playerController.currentVelocity.x += playerController.sprintAcceleration * Time.fixedDeltaTime;
                 return;
             }
 
-            if(!playerController.playerState.IsTouchingFloor())
+            if (!playerController.playerState.IsTouchingFloor())
             {
-                playerController.currentVelocity.x += playerController.airAcceleration * Time.deltaTime;
+                playerController.currentVelocity.x += playerController.airAcceleration * Time.fixedDeltaTime;
                 return;
             }
 
-            if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
+            if (!playerController.useSprintAcceleration && !playerController.input.SprintButtonHeld())
             {
-                playerController.currentVelocity.x += playerController.acceleration * Time.deltaTime;
+                playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
                 return;
             }
-            playerController.currentVelocity.x += playerController.sprintAcceleration * Time.deltaTime;
+            playerController.currentVelocity.x += playerController.sprintAcceleration * Time.fixedDeltaTime;
+            return;
 
         }
 
-        void AccelerateLeft()
+        public void AccelerateLeft()
         {
             if (playerController.playerState.IsTouchingWall())
             {
-                if (playerController.playerState.IsTouchingSlope())
+                if (playerController.playerState.IsTouchingSlope() == false)
                 {
                     playerController.currentVelocity.x = 0;
                     return;
@@ -218,45 +267,50 @@ namespace TwoDTools
             {
                 if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
                 {
-                    playerController.currentVelocity.x += -playerController.acceleration * Time.deltaTime;
+                    playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
                     return;
                 }
-                playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.deltaTime;
+                playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.fixedDeltaTime;
                 return;
             }
 
             if (!playerController.playerState.IsTouchingFloor())
             {
-                playerController.currentVelocity.x += -playerController.airAcceleration * Time.deltaTime;
+                playerController.currentVelocity.x += -playerController.airAcceleration * Time.fixedDeltaTime;
                 return;
             }
 
             if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
             {
-                playerController.currentVelocity.x += -playerController.acceleration * Time.deltaTime;
+                playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
                 return;
             }
-            playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.deltaTime;
+            playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.fixedDeltaTime;
+            return;
         }
 
-        public void ClimbSlope()
+        public void ClimbUpSlope()
         {
-            float movementAmount = Mathf.Abs(playerController.currentVelocity.x);
-            float yClimb = Mathf.Sin(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount;
-
-            if(yClimb < playerController.currentVelocity.y)
+            if (playerController.currentVelocity.x == 0)
             {
-                if (playerController.input.JumpButtonPressed() || playerController.input.JumpButtonHeld())
-                {
-                    return;
-                }
+                return;
             }
-            playerController.currentVelocity.y = yClimb;
+            if (playerController.currentVelocity.y < 0)
+            {
+                return;
+            }
+            float movementAmount = Mathf.Abs(playerController.currentVelocity.magnitude);
+            playerController.currentVelocity.y = Mathf.Sin(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount;
 
             playerController.currentVelocity.x =
-                Mathf.Cos(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * 
-                movementAmount * Mathf.Sign(playerController.currentVelocity.x);
+                (Mathf.Cos(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) *  movementAmount * Mathf.Sign(playerController.currentVelocity.x));
         }
+
+        public void ClimbDownSlope()
+        {
+
+        }
+
     }
 
 }

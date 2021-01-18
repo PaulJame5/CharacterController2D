@@ -106,7 +106,7 @@ namespace TwoDTools
                         if (transform.localScale.x < 0)
                         {
                             pos.x -= OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity;
+                            playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity / 1.5f;
                             playerController.currentVelocity.y = playerController.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();
@@ -116,7 +116,7 @@ namespace TwoDTools
                         if (transform.localScale.x > 0)
                         {
                             pos.x += OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = playerController.maximumHorizontalVelocity;
+                            playerController.currentVelocity.x = playerController.maximumHorizontalVelocity / 1.5f;
                             playerController.currentVelocity.y = playerController.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();

@@ -114,7 +114,6 @@ namespace TwoDTools
             return jumpButtonLetGo;
         }
 
-
         public void SetJumpButtonLetGo()
         {
             jumpButtonLetGo = true;
@@ -134,7 +133,6 @@ namespace TwoDTools
             return rightInputKeyHeld;
         }
 
-
         public void SetRightButtonHeld()
         {
             rightInputKeyHeld = true;
@@ -145,13 +143,10 @@ namespace TwoDTools
             return sprintButtonHeld;
         }
 
-
-
         public void SetSprintButtonHeld()
         {
             sprintButtonHeld = true;
         }
-
 
     }
 }

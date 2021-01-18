@@ -11,7 +11,6 @@
 /// 
 /// </summary>
 
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -158,7 +157,6 @@ namespace TwoDTools
 
             boxCollider = GetComponent<BoxCollider2D>();
 
-            
             playerWallJump = gameObject.AddComponent<TwoDTools.PlayerWallJump>();
 
         }
@@ -170,170 +168,56 @@ namespace TwoDTools
             // use Raycasts for checking player state
             input.InputUpdate();
             SetFacingDirection();
+            playerState.ResetAllStates();
             playerState.UpdatePlayerState();
 
             // Jump Update is a single button press adjustable  
             playerJump.JumpUpdate();
             playerWallJump.WallJumpUpdate();
-
         }
-
 
         public void FixedUpdate()
         {
-            playerMovement.MovementUpdate();
             playerJump.JumpFixedUpdate();
+            playerMovement.MovementUpdate();
             ApplyGravityCalculation();
-            // Apply Movement Calculation Results Here
-            //Physics Checks
-            if (playerState.slopeAngleFront <= PlayerState.MAX_SLOPE_LIMIT)
+
+            if(playerState.IsTouchingSlope())
             {
-                if (playerState.IsTouchingWall())
-                {
-                    playerMovement.ClimbSlope();
-                }
+                playerMovement.MoveUpSlope();
             }
-            myTransform.position += currentVelocity * Time.fixedDeltaTime;
-
-            InterpolatePosition();
-
+            GetComponent<Rigidbody2D>().velocity = currentVelocity;
         }
 
         public void ApplyGravityCalculation()
         {
-            if (!playerState.IsTouchingFloor())
-            {
-                if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
-                {
-                    currentVelocity.y = 0;
-                }
-                else
-                {
-                    currentVelocity.y -= GRAVITY * Time.fixedDeltaTime;
-
-
-                    if (currentVelocity.y > MAX_FALL_SPEED)
-                    {
-                        currentVelocity.y = MAX_FALL_SPEED;
-                    }
-                    else if (currentVelocity.y < -MAX_FALL_SPEED)
-                    {
-                        currentVelocity.y = -MAX_FALL_SPEED;
-                    }
-
-                }
-            }
-        }
-
-
-        void InterpolatePosition()
-        {
-
-            if(playerWallJump.WallJumpPressed())
-            {
-               
-                return;
-            }
-
-            positionBeforeCollision = myTransform.position;
-            if (playerState.slopeAngleFront > PlayerState.MAX_SLOPE_LIMIT)
-            {
-
-                playerState.CheckTouchingFloor();
-                if (playerState.IsTouchingFloor())
-                {
-                    if (currentVelocity.y < 0)
-                    {
-                        positionBeforeCollision.y = playerState.point.y + spriteRenderer.size.y / 2;
-                        currentVelocity.y = 0;
-                    }
-                }
-                myTransform.position = positionBeforeCollision;
-                return;
-            }
-
-            playerState.CheckTouchingWall();
-            if (playerState.IsTouchingWall())
-            {
-
-                if (currentVelocity.y < MAX_FALL_SPEED)
-                {
-                    if (myTransform.localScale.x > 0)
-                    {
-                        positionBeforeCollision.x = playerState.point.x - boxCollider.size.x / 2;
-                        myTransform.position = positionBeforeCollision;
-                    }
-                    else
-                    {
-                        positionBeforeCollision.x = playerState.point.x + boxCollider.size.x / 2;
-                        myTransform.position = positionBeforeCollision;
-                    }
-                    currentVelocity.x = 0;
-                    positionBeforeCollision = myTransform.position;
-                }
-
-                playerState.CheckTouchingFloor();
-                if (playerState.IsTouchingFloor())
-                {
-                    if (currentVelocity.y < 0)
-                    {
-                        positionBeforeCollision.y = playerState.point.y + boxCollider.size.y / 2;
-                        currentVelocity.y = 0;
-                    }
-                }
-
-
-                myTransform.position = positionBeforeCollision;
-                return;
-            }
-
-            playerState.CheckTouchingWallBehind();
-            if (playerState.IsTouchingWallBehind())
-            {
-                if (myTransform.localScale.x < 0)
-                {
-                    positionBeforeCollision.x = playerState.point.x - boxCollider.size.x / 2;
-                    if (currentVelocity.x > 0)
-                    {
-                        currentVelocity.x = 0;
-                    }
-                }
-                else
-                {
-                    positionBeforeCollision.x = playerState.point.x + boxCollider.size.x / 2;
-                    if (currentVelocity.x < 0)
-                    {
-                        currentVelocity.x = 0;
-                    }
-                }
-                myTransform.position = positionBeforeCollision;
-
-                playerState.CheckTouchingFloor();
-                if (playerState.IsTouchingFloor())
-                {
-                    if (currentVelocity.y < 0)
-                    {
-                        positionBeforeCollision.y = playerState.point.y + boxCollider.size.y / 2;
-                        currentVelocity.y = 0;
-                    }
-                }
-
-                myTransform.position = positionBeforeCollision;
-                return;
-            }
-
-
-            playerState.CheckTouchingFloor();
             if (playerState.IsTouchingFloor())
             {
-                if (currentVelocity.y < 0)
+                if (currentVelocity.y < 0.0f)
                 {
-                    positionBeforeCollision.y = playerState.point.y + spriteRenderer.size.y / 2;
                     currentVelocity.y = 0;
+                    return;
                 }
+              
             }
-            myTransform.position = positionBeforeCollision;
+            if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
+            {
+                currentVelocity.y = 0;
+                return;
+            }
 
+            currentVelocity.y -= GRAVITY * Time.fixedDeltaTime;
+
+            if (currentVelocity.y > MAX_FALL_SPEED)
+            {
+                currentVelocity.y = MAX_FALL_SPEED;
+                return;
+            }
+
+            if (currentVelocity.y < -MAX_FALL_SPEED)
+            {
+                currentVelocity.y = -MAX_FALL_SPEED;
+            }
         }
 
         public PlayerController2DInput GetInput()
