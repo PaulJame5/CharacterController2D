@@ -75,7 +75,11 @@ namespace TwoDTools
 
         void CalculateJumpDegradation()
         {
-            if(playerController.currentVelocity.y < 0)
+            if (playerController.playerState.IsTouchingFloor())
+            {
+                return;
+            }
+            if (playerController.currentVelocity.y <= 0)
             {
                 playerController.playerState.NotJumping();
                 return;

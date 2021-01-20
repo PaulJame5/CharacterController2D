@@ -65,15 +65,28 @@ namespace Tests
             player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y = 0;
 
             player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+            player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+            player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+            player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+            player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+            player.GetComponent<TwoDTools.PlayerMovement>().AccelerateRight();
+
+
             float previousX = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
+            Assert.Greater(previousX, 0);
+
             float previousY = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y;
 
             player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeFront(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeBack(true);
+            player.GetComponent<TwoDTools.PlayerState>().hitPointFront = new Vector2(0, 0);
+            player.GetComponent<TwoDTools.PlayerState>().hitPointBack = new Vector2(-1, 3);
             player.GetComponent<TwoDTools.PlayerState>().slopeAngleFront = 50;
-            player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
+            player.GetComponent<TwoDTools.PlayerState>().slopeAngleBack = 50;
+            player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
 
-            Assert.Greater(previousX, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x);
-            Assert.Less(previousY, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y);
+            Assert.Greater(previousX, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.x);
+            Assert.Greater(previousY, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.y);
 
             yield return new WaitForSeconds(1f);
         }

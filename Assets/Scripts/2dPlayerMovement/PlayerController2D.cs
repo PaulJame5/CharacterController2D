@@ -184,18 +184,17 @@ namespace TwoDTools
 
             NormaliseVelocity();
             rb.velocity = normalisedVelocity;
+
         }
 
         private void NormaliseVelocity()
         {
-            if (playerState.IsTouchingSlope() && !playerState.IsJumping())
+            if (playerState.IsTouchingSlope())
             {
                 normalisedVelocity = playerMovement.MoveOnSlope();
+                return;
             }
-            else
-            {
-                normalisedVelocity = currentVelocity;
-            }
+            normalisedVelocity = currentVelocity;
         }
 
         public TwoDTools.PlayerController2D Get()
@@ -241,13 +240,13 @@ namespace TwoDTools
 
             }
 
-            if (playerState.IsTouchingSlope())
-            {
-                if (currentVelocity.y <= 0.0f)
-                {
-                    currentVelocity.y = 0;
-                }
-            }
+            //if (playerState.IsTouchingSlope())
+            //{
+            //    if (currentVelocity.y <= 0.0f)
+            //    {
+            //        currentVelocity.y = 0;
+            //    }
+            //}
         } // End Apply Gravity
 
         public PlayerController2DInput GetInput()

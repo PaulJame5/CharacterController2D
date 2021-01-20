@@ -51,7 +51,8 @@ namespace TwoDTools
         public float slopeAngleBack;
         public float touchWallAngle = 0;
         public const float MAX_SLOPE_LIMIT = 80;
-        public Vector2 hitPoint;
+        public Vector2 hitPointBack;
+        public Vector2 hitPointFront;
 
         enum CheckType
         {
@@ -101,12 +102,11 @@ namespace TwoDTools
             touchingCeiling = TouchingTerrain(myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical, SlopeCheck.None);
             touchingFloor = TouchingTerrain(-myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical, SlopeCheck.None);
 
-            //touchingSlopeFront = TouchingTerrain(-myTransform.up, CheckType.Horizontal, 2, playerController.raycastLengthVertical * 1.6f, SlopeCheck.Front);
-
             // Slope Front
-            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal, SlopeCheck.Front);
+            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal * 3f, SlopeCheck.Front);
             // Slope Back
-            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal, SlopeCheck.Back);
+            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal * 1.6f, SlopeCheck.Back);
+
         }
 
         private void WallCheck()
@@ -164,7 +164,6 @@ namespace TwoDTools
             touchingSlopeFront = false;
             touchingSlopeBack = false;
         }
-
         public bool IsTouchingSlope()
         {
             if(touchingSlopeFront == true)
@@ -186,9 +185,34 @@ namespace TwoDTools
             return touchingSlopeBack;
         }
 
+        public bool FacingDownSlope()
+        {
+            if (!touchingSlopeFront && !touchingSlopeBack)
+            {
+                return false;
+            }
+            if (touchingSlopeFront && !touchingSlopeBack)
+            {
+                if (hitPointFront.y > hitPointBack.y)
+                {
+                    return false;
+                }
+                return true;
+            }
+            if (hitPointFront.y > hitPointBack.y)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public void SetIsTouchingSlopeFront(bool isTouchingSlope)
         {
             touchingSlopeFront = isTouchingSlope;
+        }
+        public void SetIsTouchingSlopeBack(bool isTouchingSlope)
+        {
+            touchingSlopeBack = isTouchingSlope;
         }
 
         public void ResetTouchingSlope()
@@ -215,7 +239,28 @@ namespace TwoDTools
             isDead = true;
         }
 
-        
+        public bool IsMovingHorizontal()
+        {
+            return ((playerController.input.RightButton() && playerController.currentVelocity.x > 0) || (playerController.input.LeftButton() && playerController.currentVelocity.x < 0));
+        }
+
+        public bool IsMovingVerticalUp()
+        {
+            if (touchingFloor)
+            {
+                return false;
+            }
+            return (playerController.currentVelocity.y > 0);
+        }
+        public bool IsMovingVerticalDown()
+        {
+            if (touchingFloor)
+            {
+                return false;
+            }
+            return (playerController.currentVelocity.y < 0);
+        }
+
 
         bool CheckSlopeAngle(SlopeCheck slopeCheck)
         {
@@ -319,14 +364,16 @@ namespace TwoDTools
                     switch (slopeCheck)
                     {
                         case SlopeCheck.Front:
+                            Debug.DrawRay(pos + (Vector2)transform.position, direction * length, Color.green);
                             slopeAngleFront = Vector2.Angle(hitRay.normal, Vector2.up);
                             hit = CheckSlopeAngle(slopeCheck);
-                            hitPoint = hitRay.point;
+                            hitPointFront = hitRay.point;
                             return hit;
                         case SlopeCheck.Back:
+                            Debug.DrawRay(pos + (Vector2)transform.position, direction * length, Color.green);
                             slopeAngleBack = Vector2.Angle(hitRay.normal, Vector2.up);
                             hit = CheckSlopeAngle(slopeCheck);
-                            hitPoint = hitRay.point;
+                            hitPointBack = hitRay.point;
                             return hit;
                         default:
                         case SlopeCheck.None:
