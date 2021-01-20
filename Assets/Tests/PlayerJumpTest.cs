@@ -65,7 +65,7 @@ namespace Tests
             Assert.AreEqual(input.JumpButtonHeld(), true);
             player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
             player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
-            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravtiy();
             player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(false);
 
             Assert.Greater(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
@@ -76,7 +76,7 @@ namespace Tests
             Assert.AreEqual(input.JumpButtonHeld(), true);
             player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
             player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
-            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravtiy();
             Assert.Greater(previous, player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y);
             Assert.Greater(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
 
@@ -87,7 +87,7 @@ namespace Tests
             Assert.AreEqual(input.JumpButtonLetGo(), true);
             player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
             player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
-            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravtiy();
             Assert.LessOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 1);
 
             input.ResetInput();
@@ -96,7 +96,7 @@ namespace Tests
 
             player.GetComponent<TwoDTools.PlayerJump>().JumpUpdate();
             player.GetComponent<TwoDTools.PlayerJump>().JumpFixedUpdate();
-            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravityCalculation();
+            player.GetComponent<TwoDTools.PlayerController2D>().ApplyGravtiy();
 
             Assert.LessOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y, 0);
 

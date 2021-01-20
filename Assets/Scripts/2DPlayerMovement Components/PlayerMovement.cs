@@ -43,32 +43,8 @@ namespace TwoDTools
 
         void CalculateAcceleration()
         {
-            
-            if (!input.RightButton() && !input.LeftButton())
+            if(NoInput())
             {
-                if (playerController.playerState.IsTouchingWall())
-                {
-                    if (playerController.playerState.IsTouchingSlope())
-                    {
-                        Decelerate();
-                        MoveUpSlope();
-                        return;
-                    }
-                    playerController.currentVelocity.x = 0;
-                    return;
-                }
-                // If we aren't using acceleration values then we aren't using Decelerate
-                if (!playerController.useAcceleration)
-                {
-                    playerController.currentVelocity.x = 0;
-                    return;
-                }
-                if(playerController.playerState.IsTouchingWallBehind())
-                {
-                    playerController.currentVelocity.x = 0;
-                    return;
-                }
-                Decelerate();
                 return;
             }
             if (input.LeftButton())
@@ -82,9 +58,49 @@ namespace TwoDTools
             }
         }
 
-        public void MoveUpSlope()
+        bool NoInput()
         {
-            ClimbUpSlope();
+            if (input.RightButton())
+            {
+                return false;
+            }
+            if (input.LeftButton())
+            {
+                return false;
+            }
+
+            if (playerController.playerState.IsTouchingWall())
+            {
+                playerController.currentVelocity.x = 0;
+                return true;
+            }
+            // If we aren't using acceleration values then we aren't using Decelerate
+            if (!playerController.useAcceleration)
+            {
+                playerController.currentVelocity.x = 0;
+                return true;
+            }
+            if (playerController.playerState.IsTouchingWallBehind())
+            {
+                playerController.currentVelocity.x = 0;
+                return true;
+            }
+            Decelerate();
+            return true;
+
+        }
+
+        public Vector3 MoveOnSlope()
+        {
+            if(playerController.playerState.IsTouchingSlopeFront())
+            {
+                return ClimbUpSlope();
+            }
+            if(playerController.playerState.IsTouchingSlopeBack())
+            {
+                return ClimbDownSlope();
+            }
+            return new Vector3();
         }
 
         public void Decelerate()
@@ -99,15 +115,8 @@ namespace TwoDTools
                 return;
             }
 
-            if(DecelerateMovingRight())
-            {
-                return;
-            }
-
-            if(DecelerateMovingLeft())
-            {
-                return;
-            }
+            DecelerateMovingRight();
+            DecelerateMovingLeft();
         }
 
         bool DecelerateMovingRight()
@@ -119,7 +128,7 @@ namespace TwoDTools
             }
             playerController.currentVelocity.x -= playerController.deceleration * Time.fixedDeltaTime;
 
-            if (playerController.currentVelocity.x < 0)
+            if (playerController.currentVelocity.x <= 0)
             {
                 playerController.currentVelocity.x = 0;
             }
@@ -135,7 +144,7 @@ namespace TwoDTools
             }
             playerController.currentVelocity.x += playerController.deceleration * Time.fixedDeltaTime;
 
-            if (playerController.currentVelocity.x > 0)
+            if (playerController.currentVelocity.x >= 0)
             {
                 playerController.currentVelocity.x = 0;
             }
@@ -148,13 +157,7 @@ namespace TwoDTools
             {
                 return false;
             }
-            if (playerController.playerState.IsTouchingSlope())
-            {
-                if (!(playerController.input.JumpButtonHeld() || playerController.input.JumpButtonPressed()))
-                {
-                    playerController.currentVelocity.y = 0;
-                }
-            }
+
             playerController.currentVelocity.x = 0;
             return true;
         }
@@ -165,7 +168,7 @@ namespace TwoDTools
             {
                 return false;
             }
-            if (!playerController.playerState.IsTouchingFloor())
+            if (!playerController.playerState.IsTouchingFloor() && !playerController.playerState.IsTouchingSlope())
             {
                 // Moving to the right
                 if (playerController.currentVelocity.x > 0)
@@ -197,12 +200,11 @@ namespace TwoDTools
         {
             if (playerController.playerState.IsTouchingWall())
             {
-                if (playerController.playerState.IsTouchingSlope() == false)
-                {
-                    playerController.currentVelocity.x = 0;
-                    return;
-                }
+                playerController.currentVelocity.x = 0;
+                return;
             }
+
+
             if (!playerController.useAcceleration)
             {
                 playerController.currentVelocity.x = playerController.maximumHorizontalVelocity;
@@ -227,7 +229,7 @@ namespace TwoDTools
                 return;
             }
 
-            if (!playerController.playerState.IsTouchingFloor())
+            if (!playerController.playerState.IsTouchingFloor() && !playerController.playerState.IsTouchingSlope())
             {
                 playerController.currentVelocity.x += playerController.airAcceleration * Time.fixedDeltaTime;
                 return;
@@ -247,11 +249,8 @@ namespace TwoDTools
         {
             if (playerController.playerState.IsTouchingWall())
             {
-                if (playerController.playerState.IsTouchingSlope() == false)
-                {
-                    playerController.currentVelocity.x = 0;
-                    return;
-                }
+                playerController.currentVelocity.x = 0;
+                return;
             }
             if (!playerController.useAcceleration)
             {
@@ -274,7 +273,7 @@ namespace TwoDTools
                 return;
             }
 
-            if (!playerController.playerState.IsTouchingFloor())
+            if (!playerController.playerState.IsTouchingFloor() && !playerController.playerState.IsTouchingSlope())
             {
                 playerController.currentVelocity.x += -playerController.airAcceleration * Time.fixedDeltaTime;
                 return;
@@ -289,25 +288,47 @@ namespace TwoDTools
             return;
         }
 
-        public void ClimbUpSlope()
+        public Vector3 ClimbUpSlope()
         {
+            Vector3 result = new Vector3();
+
+            if (input.JumpButtonPressed())
+            {
+                return result;
+            }
             if (playerController.currentVelocity.x == 0)
             {
-                return;
+                return result;
             }
-            if (playerController.currentVelocity.y < 0)
-            {
-                return;
-            }
-            float movementAmount = Mathf.Abs(playerController.currentVelocity.magnitude);
-            playerController.currentVelocity.y = Mathf.Sin(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount;
+            float movementAmount = Mathf.Abs(playerController.currentVelocity.x);
+            result.y = Mathf.Sin(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount;
 
-            playerController.currentVelocity.x =
+            result.x =
                 (Mathf.Cos(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) *  movementAmount * Mathf.Sign(playerController.currentVelocity.x));
+
+            return result;
         }
 
-        public void ClimbDownSlope()
+        public Vector3 ClimbDownSlope()
         {
+            Vector3 result = new Vector3();
+
+
+            if (input.JumpButtonPressed())
+            {
+                return result;
+            }
+            if (playerController.currentVelocity.x == 0)
+            {
+                return result;
+            }
+            
+            float movementAmount = Mathf.Abs(playerController.currentVelocity.x);
+            result.y = -Mathf.Sin(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount;
+
+            result.x =
+                (Mathf.Cos(playerController.playerState.slopeAngleFront * Mathf.Deg2Rad) * movementAmount * Mathf.Sign(playerController.currentVelocity.x));
+            return result;
 
         }
 
