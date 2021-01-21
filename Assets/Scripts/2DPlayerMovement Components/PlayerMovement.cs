@@ -28,6 +28,8 @@ namespace TwoDTools
         private TwoDTools.PlayerController2D playerController;
         private TwoDTools.PlayerController2DInput input;
 
+        private float maximumSpeedMultiplier;
+
         // Called before first frame
         public void Start()
         {
@@ -41,8 +43,16 @@ namespace TwoDTools
             CalculateAcceleration();
         }
 
-        void CalculateAcceleration()
+        public void CalculateAcceleration()
         {
+            if(input.SprintButtonHeld())
+            {
+                maximumSpeedMultiplier = playerController.sprintSpeedMultiplier;
+            }
+            else
+            {
+                maximumSpeedMultiplier = 1;
+            }
             if(NoInput())
             {
                 return;
@@ -222,28 +232,22 @@ namespace TwoDTools
                 return;
             }
 
-
             if (!playerController.useAcceleration)
             {
-                playerController.currentVelocity.x = playerController.maximumHorizontalVelocity;
+                playerController.currentVelocity.x = playerController.maximumHorizontalVelocity * maximumSpeedMultiplier;
                 return;
             }
 
             // Max Acceration reached
-            if (playerController.currentVelocity.x >= playerController.maximumHorizontalVelocity)
+            if (playerController.currentVelocity.x >= playerController.maximumHorizontalVelocity * maximumSpeedMultiplier)
             {
-                playerController.currentVelocity.x = playerController.maximumHorizontalVelocity;
+                playerController.currentVelocity.x = playerController.maximumHorizontalVelocity * maximumSpeedMultiplier;
                 return;
             }
 
             if (!playerController.useAirMomentum)
             {
-                if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
-                {
-                    playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
-                    return;
-                }
-                playerController.currentVelocity.x += playerController.sprintAcceleration * Time.fixedDeltaTime;
+                playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
                 return;
             }
 
@@ -253,22 +257,12 @@ namespace TwoDTools
                 return;
             }
 
-            if (!playerController.useSprintAcceleration && !playerController.input.SprintButtonHeld())
-            {
-                if(playerController.currentVelocity.x < 0)
-                {
-                    Decelerate();
-                    return;
-                }
-                playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
-                return;
-            }
             if (playerController.currentVelocity.x < 0)
             {
                 Decelerate();
                 return;
             }
-            playerController.currentVelocity.x += playerController.sprintAcceleration * Time.fixedDeltaTime;
+            playerController.currentVelocity.x += playerController.acceleration * Time.fixedDeltaTime;
             return;
 
         }
@@ -282,22 +276,17 @@ namespace TwoDTools
             }
             if (!playerController.useAcceleration)
             {
-                playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity;
+                playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity * maximumSpeedMultiplier;
                 return;
             }
-            if (playerController.currentVelocity.x <= -playerController.maximumHorizontalVelocity)
+            if (playerController.currentVelocity.x <= -playerController.maximumHorizontalVelocity * maximumSpeedMultiplier)
             {
-                playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity;
+                playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity * maximumSpeedMultiplier;
                 return;
             }
             if (!playerController.useAirMomentum)
             {
-                if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
-                {
-                    playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
-                    return;
-                }
-                playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.fixedDeltaTime;
+                playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
                 return;
             }
 
@@ -307,22 +296,18 @@ namespace TwoDTools
                 return;
             }
 
-            if (!playerController.useSprintAcceleration || playerController.input.SprintButtonHeld())
-            {
-                if (playerController.currentVelocity.x > 0)
-                {
-                    Decelerate();
-                    return;
-                }
-                playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
-                return;
-            }
             if (playerController.currentVelocity.x > 0)
             {
                 Decelerate();
                 return;
             }
-            playerController.currentVelocity.x += -playerController.sprintAcceleration * Time.fixedDeltaTime;
+
+            if (playerController.currentVelocity.x > 0)
+            {
+                Decelerate();
+                return;
+            }
+            playerController.currentVelocity.x += -playerController.acceleration * Time.fixedDeltaTime;
             return;
         }
 

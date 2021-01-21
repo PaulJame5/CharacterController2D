@@ -282,6 +282,16 @@ PrefabInstance:
       propertyPath: horizontalRaycasts
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: sprintAcceleration
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: acceleration
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242151, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
       propertyPath: m_Size.x

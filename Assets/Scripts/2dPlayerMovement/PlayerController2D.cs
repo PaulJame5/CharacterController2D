@@ -65,8 +65,8 @@ namespace TwoDTools
         public bool useAcceleration = false;
         public float acceleration = 5.0f;
 
-        public bool useSprintAcceleration;
-        public float sprintAcceleration = 7.5f;
+        public bool useSprint;
+        public float sprintSpeedMultiplier = 1.5f;
 
         public float deceleration = 5.0f;
 
@@ -481,11 +481,11 @@ public class PlayerController2DEditor : UnityEditor.Editor
                 playerController.acceleration = EditorGUILayout.FloatField("Acceleration", playerController.acceleration);
                 playerController.deceleration = EditorGUILayout.FloatField("Deceleration", playerController.deceleration);
 
-                playerController.useSprintAcceleration = EditorGUILayout.Toggle("Use Sprint", playerController.useSprintAcceleration);
-                switch (playerController.useSprintAcceleration)
+                playerController.useSprint = EditorGUILayout.Toggle("Use Sprint", playerController.useSprint);
+                switch (playerController.useSprint)
                 {
                     case true:
-                        playerController.sprintAcceleration = EditorGUILayout.FloatField("Sprint Acceleration", playerController.sprintAcceleration);
+                        playerController.sprintSpeedMultiplier = EditorGUILayout.FloatField("Sprint Speed Multiplier", playerController.sprintSpeedMultiplier);
                         break;
                 }//end sprint
 
