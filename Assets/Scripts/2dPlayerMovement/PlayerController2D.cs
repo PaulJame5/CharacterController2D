@@ -101,6 +101,15 @@ namespace TwoDTools
         public float jumpVelocityDegradation = 1f;
         public float jumpVelocityDegradationWall = 1f;
 
+        public bool useCoyoteTime;
+        public float coyoteTime = .25f;
+
+        public bool usePreEmptiveCoyoteTime;
+        public float preEmptiveCoyoteTime = 0.16f;
+        public float pressedAt;
+
+        public float lastTouchedGround;
+
         #endregion // Jumping
 
 
@@ -167,6 +176,9 @@ namespace TwoDTools
             SetFacingDirection();
             playerState.ResetAllStates();
             playerState.UpdatePlayerState();
+            CoyoteTimeSetup();
+            PreCoyoteTimeSetup();
+
 
             // Jump Update is a single button press adjustable  
             playerJump.JumpUpdate();
@@ -184,6 +196,31 @@ namespace TwoDTools
 
             NormaliseVelocity();
             rb.velocity = normalisedVelocity;
+
+        }
+
+        void CoyoteTimeSetup()
+        {
+            if(!useCoyoteTime)
+            {
+                return;
+            }
+            if(playerState.IsTouchingFloor() && playerState.IsJumping() == false)
+            {
+                lastTouchedGround = Time.timeSinceLevelLoad;
+            }
+        }
+
+        void PreCoyoteTimeSetup()
+        {
+            if(!usePreEmptiveCoyoteTime)
+            {
+                return;
+            }
+            if(input.JumpButtonPressed() && !playerState.IsTouchingFloor())
+            {
+                pressedAt = Time.timeSinceLevelLoad;
+            }
 
         }
 
@@ -513,6 +550,31 @@ public class PlayerController2DEditor : UnityEditor.Editor
         
         playerController.jumpVelocityDegradationWall = EditorGUILayout.FloatField(new GUIContent("Gravity Friction", "Friction Multiplier when against terrain"), 
             playerController.jumpVelocityDegradationWall);
+
+
+        playerController.useCoyoteTime = EditorGUILayout.Toggle("Use Coyote Time", playerController.useCoyoteTime);
+
+        switch (playerController.useCoyoteTime)
+        {
+            case false:
+                break;
+
+            case true:
+                playerController.coyoteTime = EditorGUILayout.FloatField("Coyote Time", playerController.coyoteTime);
+                break;
+
+        }
+        playerController.usePreEmptiveCoyoteTime = EditorGUILayout.Toggle(" Use Pre-Emptive Coyote Time", playerController.usePreEmptiveCoyoteTime);
+        switch (playerController.usePreEmptiveCoyoteTime)
+        {
+            case false:
+                break;
+
+            case true:
+                playerController.preEmptiveCoyoteTime = EditorGUILayout.FloatField("Pre-Emptive Coyote Time", playerController.preEmptiveCoyoteTime);
+                break;
+
+        }
 
     }
 

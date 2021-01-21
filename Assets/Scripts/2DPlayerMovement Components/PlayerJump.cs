@@ -31,6 +31,7 @@ namespace TwoDTools
             if(input.JumpButtonPressed())
             {
                 CalcualteJump();
+                playerController.lastTouchedGround = -1;
                 playerController.playerState.Jumping();
                 return;
             }
@@ -46,6 +47,11 @@ namespace TwoDTools
         {
             if (input.JumpButtonHeld())
             {
+                if (playerController.pressedAt + playerController.preEmptiveCoyoteTime > Time.timeSinceLevelLoad)
+                {
+                    CalcualteJump();
+                    return;
+                }
                 CalculateJumpDegradation();
                 return;
             }
@@ -54,9 +60,17 @@ namespace TwoDTools
 
         void CalcualteJump()
         {
-            if (!playerController.playerState.IsTouchingFloor() && !playerController.playerState.IsTouchingSlope())
+            if (!playerController.playerState.IsTouchingFloor())
             {
-                return;
+                if (!playerController.useCoyoteTime && !playerController.usePreEmptiveCoyoteTime)
+                {
+                    return;
+                }
+
+                if (playerController.coyoteTime + playerController.lastTouchedGround < Time.timeSinceLevelLoad)
+                {
+                    return;
+                }
             }
 
 
@@ -69,7 +83,6 @@ namespace TwoDTools
                     playerController.currentVelocity.y = playerController.initialBurstJump;
                     playerController.playerState.ResetTouchingSlope();
                     break;
-
             }
         }
 
@@ -98,7 +111,6 @@ namespace TwoDTools
                     }
                     playerController.currentVelocity.y -= playerController.jumpVelocityDegradation * Time.deltaTime;
                     break;
-
             }
         }
 
@@ -116,7 +128,6 @@ namespace TwoDTools
                         playerController.currentVelocity.y = PlayerController2D.GRAVITY * Time.deltaTime;
                     }
                     break;
-
             }
         }
 

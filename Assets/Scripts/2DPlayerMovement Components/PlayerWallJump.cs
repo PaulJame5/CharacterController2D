@@ -40,10 +40,16 @@ namespace TwoDTools
             {
                 return;
             }
-
             if (!input.JumpButtonPressed())
             {
-                return;
+                if(!playerController.usePreEmptiveCoyoteTime)
+                {
+                    return;
+                }
+                if (playerController.pressedAt + playerController.preEmptiveCoyoteTime < Time.timeSinceLevelLoad)
+                {
+                    return;
+                }
             }
 
             CalculateWallJump();
