@@ -28,7 +28,7 @@ namespace TwoDTools
         private TwoDTools.PlayerController2D playerController;
         private TwoDTools.PlayerController2DInput input;
 
-        private float maximumSpeedMultiplier;
+        private float maximumSpeedMultiplier = 1;
 
         // Called before first frame
         public void Start()
@@ -40,19 +40,12 @@ namespace TwoDTools
         // Called from PlayerController2D Update()
         public void MovementUpdate()
         {
+            SprintCheck();
             CalculateAcceleration();
         }
 
         public void CalculateAcceleration()
         {
-            if(input.SprintButtonHeld())
-            {
-                maximumSpeedMultiplier = playerController.sprintSpeedMultiplier;
-            }
-            else
-            {
-                maximumSpeedMultiplier = 1;
-            }
             if(NoInput())
             {
                 return;
@@ -65,6 +58,22 @@ namespace TwoDTools
             if (input.RightButton())
             {
                 AccelerateRight();
+            }
+        }
+
+        void SprintCheck()
+        {
+            if(!playerController.useSprint)
+            {
+                return;
+            }
+            if (input.SprintButtonHeld())
+            {
+                maximumSpeedMultiplier = playerController.sprintSpeedMultiplier;
+            }
+            else
+            {
+                maximumSpeedMultiplier = 1;
             }
         }
 

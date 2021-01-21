@@ -262,6 +262,11 @@ PrefabInstance:
       propertyPath: m_AngularDrag
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242136, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: m_BodyType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
       propertyPath: raycastSpreadAmountHorizontal
@@ -291,6 +296,21 @@ PrefabInstance:
         type: 3}
       propertyPath: acceleration
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: useCoyoteTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: usePreEmptiveCoyoteTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: preEmptiveCoyoteTime
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242151, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
