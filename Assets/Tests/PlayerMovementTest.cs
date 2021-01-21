@@ -120,7 +120,39 @@ namespace Tests
 
             yield return new WaitForSeconds(1f);
         }
+        [UnityTest]
+        public IEnumerator SprintButtonChangesMaximumSpeed()
+        {
+            GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity =
+                new Vector2(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, 0);
 
+            player.GetComponent<TwoDTools.PlayerController2DInput>().SetRightButtonHeld();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+
+            float previousVelocity = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
+            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, previousVelocity);
+            // check max speed is not increasing
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, previousVelocity);
+
+            player.GetComponent<TwoDTools.PlayerController2DInput>().SetSprintButtonHeld();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            // Show is increasing with sprint button held
+            Assert.Less(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, 
+                player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x);
+
+
+            // Use the Assert class to test conditions.
+            // Use yield to skip a frame.
+            yield return new WaitForSeconds(1f);
+        }
 
 
     }
