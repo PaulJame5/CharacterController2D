@@ -47,7 +47,7 @@ namespace TwoDTools
         {
             if (input.JumpButtonHeld())
             {
-                if (playerController.pressedAt + playerController.preEmptiveCoyoteTime > Time.timeSinceLevelLoad)
+                if (playerController.pressedAt + playerController.playerControllerData.preEmptiveCoyoteTime > Time.timeSinceLevelLoad)
                 {
                     CalcualteJump();
                     return;
@@ -62,25 +62,25 @@ namespace TwoDTools
         {
             if (!playerController.playerState.IsTouchingFloor())
             {
-                if (!playerController.useCoyoteTime && !playerController.usePreEmptiveCoyoteTime)
+                if (!playerController.playerControllerData.useCoyoteTime && !playerController.playerControllerData.usePreEmptiveCoyoteTime)
                 {
                     return;
                 }
 
-                if (playerController.coyoteTime + playerController.lastTouchedGround < Time.timeSinceLevelLoad)
+                if (playerController.playerControllerData.coyoteTime + playerController.lastTouchedGround < Time.timeSinceLevelLoad)
                 {
                     return;
                 }
             }
 
 
-            switch (playerController.jumpType)
+            switch (playerController.playerControllerData.jumpType)
             {
-                case PlayerController2D.JumpType.PreItalianPlumber:
-                    playerController.currentVelocity.y = playerController.initialBurstJump;
+                case PlayerController2DData.JumpType.PreItalianPlumber:
+                    playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                     break;
-                case PlayerController2D.JumpType.MeatSquare:
-                    playerController.currentVelocity.y = playerController.initialBurstJump;
+                case PlayerController2DData.JumpType.MeatSquare:
+                    playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                     playerController.playerState.ResetTouchingSlope();
                     break;
             }
@@ -98,18 +98,18 @@ namespace TwoDTools
                 return;
             }
 
-            switch (playerController.jumpType)
+            switch (playerController.playerControllerData.jumpType)
             {
-                case PlayerController2D.JumpType.PreItalianPlumber:
+                case PlayerController2DData.JumpType.PreItalianPlumber:
                     // Let gravity do it's thing.
                     break;
-                case PlayerController2D.JumpType.MeatSquare:
+                case PlayerController2DData.JumpType.MeatSquare:
                     if (playerController.playerState.IsTouchingWall() || playerController.playerState.IsTouchingWallBehind())
                     {
-                        playerController.currentVelocity.y -= playerController.jumpVelocityDegradationWall * Time.deltaTime;
+                        playerController.currentVelocity.y -= playerController.playerControllerData.jumpVelocityDegradationWall * Time.deltaTime;
                         break;
                     }
-                    playerController.currentVelocity.y -= playerController.jumpVelocityDegradation * Time.deltaTime;
+                    playerController.currentVelocity.y -= playerController.playerControllerData.jumpVelocityDegradation * Time.deltaTime;
                     break;
             }
         }
@@ -117,15 +117,15 @@ namespace TwoDTools
 
         void CalculateForWhenJumpButtonLetGo()
         {
-            switch (playerController.jumpType)
+            switch (playerController.playerControllerData.jumpType)
             {
-                case PlayerController2D.JumpType.PreItalianPlumber:
+                case PlayerController2DData.JumpType.PreItalianPlumber:
                     // Let gravity do it's thing.
                     break;
-                case PlayerController2D.JumpType.MeatSquare:
+                case PlayerController2DData.JumpType.MeatSquare:
                     if (playerController.currentVelocity.y > .1f)
                     {
-                        playerController.currentVelocity.y = PlayerController2D.GRAVITY * Time.deltaTime;
+                        playerController.currentVelocity.y = PlayerController2DData.GRAVITY * Time.deltaTime;
                     }
                     break;
             }

@@ -96,22 +96,22 @@ namespace TwoDTools
             // Horizontal Checks
             WallCheck();
             
-            touchingWallBehind = TouchingTerrain(-myTransform.right * Mathf.Sign(myTransform.localScale.x), CheckType.Horizontal, playerController.horizontalRaycasts, playerController.raycastLengthHorizontal, SlopeCheck.None);
+            touchingWallBehind = TouchingTerrain(-myTransform.right * Mathf.Sign(myTransform.localScale.x), CheckType.Horizontal, playerController.playerControllerData.horizontalRaycasts, playerController.playerControllerData.raycastLengthHorizontal, SlopeCheck.None);
             
             // Vertical Checks
-            touchingCeiling = TouchingTerrain(myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical, SlopeCheck.None);
-            touchingFloor = TouchingTerrain(-myTransform.up, CheckType.Vertical, playerController.verticalRaycasts, playerController.raycastLengthVertical, SlopeCheck.None);
+            touchingCeiling = TouchingTerrain(myTransform.up, CheckType.Vertical, playerController.playerControllerData.verticalRaycasts, playerController.playerControllerData.raycastLengthVertical, SlopeCheck.None);
+            touchingFloor = TouchingTerrain(-myTransform.up, CheckType.Vertical, playerController.playerControllerData.verticalRaycasts, playerController.playerControllerData.raycastLengthVertical, SlopeCheck.None);
 
             // Slope Front
-            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal * 3f, SlopeCheck.Front);
+            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.playerControllerData.raycastLengthHorizontal * 3f, SlopeCheck.Front);
             // Slope Back
-            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.raycastLengthHorizontal * 1.6f, SlopeCheck.Back);
+            TouchingTerrain(-myTransform.up, CheckType.Vertical, 1, playerController.playerControllerData.raycastLengthHorizontal * 1.6f, SlopeCheck.Back);
 
         }
 
         private void WallCheck()
         {
-            touchingWall = TouchingTerrain(myTransform.right * Mathf.Sign(myTransform.localScale.x), CheckType.Horizontal, playerController.horizontalRaycasts, playerController.raycastLengthHorizontal, SlopeCheck.None);
+            touchingWall = TouchingTerrain(myTransform.right * Mathf.Sign(myTransform.localScale.x), CheckType.Horizontal, playerController.playerControllerData.horizontalRaycasts, playerController.playerControllerData.raycastLengthHorizontal, SlopeCheck.None);
             if (touchingWall)
             {
                 if (touchWallAngle <= MAX_SLOPE_LIMIT && touchWallAngle > 0)
@@ -314,12 +314,12 @@ namespace TwoDTools
             switch (checkType)
             {
                 case CheckType.Vertical:
-                    minimumBounds.x -= playerController.raycastSpreadAmountVertical;
-                    maximumBounds.x += playerController.raycastSpreadAmountVertical;
+                    minimumBounds.x -= playerController.playerControllerData.raycastSpreadAmountVertical;
+                    maximumBounds.x += playerController.playerControllerData.raycastSpreadAmountVertical;
                     break;
                 case CheckType.Horizontal:
-                    minimumBounds.y -= playerController.raycastSpreadAmountHorizontal;
-                    maximumBounds.y += playerController.raycastSpreadAmountHorizontal;
+                    minimumBounds.y -= playerController.playerControllerData.raycastSpreadAmountHorizontal;
+                    maximumBounds.y += playerController.playerControllerData.raycastSpreadAmountHorizontal;
                     break;
             }
 
@@ -357,7 +357,7 @@ namespace TwoDTools
                             break;
                     }
                 }
-                var hitRay = Physics2D.Raycast(pos + (Vector2)transform.position, direction, length, playerController.terrainLayer);
+                var hitRay = Physics2D.Raycast(pos + (Vector2)transform.position, direction, length, playerController.playerControllerData.terrainLayer);
 
                 if (hitRay)
                 {
