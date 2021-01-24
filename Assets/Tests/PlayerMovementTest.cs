@@ -150,7 +150,7 @@ namespace Tests
             player.GetComponent<TwoDTools.PlayerState>().StartSliding();
             player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true);
             player.GetComponent<TwoDTools.PlayerController2D>().input.SetDownKeyHeld();
-            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration(); 
             player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
 
             Assert.Less(previousX, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.x);
