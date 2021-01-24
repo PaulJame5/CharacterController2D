@@ -280,7 +280,7 @@ PrefabInstance:
     - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
       propertyPath: maximumHorizontalVelocity
-      value: 8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
@@ -295,7 +295,7 @@ PrefabInstance:
     - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
       propertyPath: acceleration
-      value: 8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}
@@ -311,6 +311,126 @@ PrefabInstance:
         type: 3}
       propertyPath: preEmptiveCoyoteTime
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.showJumpGUI
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.maximumHorizontalVelocity
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.useAcceleration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.acceleration
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.deceleration
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.useAirMomentum
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.airDeceleration
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.airAcceleration
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.jumpType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.initialBurstJump
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.jumpVelocityDegradation
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.jumpVelocityDegradationWall
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.useCoyoteTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.usePreEmptiveCoyoteTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.preEmptiveCoyoteTime
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.horizontalRaycasts
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.raycastSpreadAmountHorizontal
+      value: -0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.raycastLengthHorizontal
+      value: 0.34
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.raycastSpreadAmountVertical
+      value: -0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.raycastLengthVertical
+      value: 0.31
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.terrainLayer.m_Bits
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.coyoteTime
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.showMovementGUI
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1413999758579242146, guid: 8fc850f7b775bc24dba048a2d1f94792,
+        type: 3}
+      propertyPath: playerControllerData.showRaycastGUI
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1413999758579242151, guid: 8fc850f7b775bc24dba048a2d1f94792,
         type: 3}

@@ -42,11 +42,11 @@ namespace TwoDTools
             }
             if (!input.JumpButtonPressed())
             {
-                if(!playerController.usePreEmptiveCoyoteTime)
+                if(!playerController.playerControllerData.usePreEmptiveCoyoteTime)
                 {
                     return;
                 }
-                if (playerController.pressedAt + playerController.preEmptiveCoyoteTime < Time.timeSinceLevelLoad)
+                if (playerController.pressedAt + playerController.playerControllerData.preEmptiveCoyoteTime < Time.timeSinceLevelLoad)
                 {
                     return;
                 }
@@ -76,19 +76,19 @@ namespace TwoDTools
         void CalculateWallJump()
         {
             Vector3 pos = transform.position;
-            switch (playerController.jumpType)
+            switch (playerController.playerControllerData.jumpType)
             {
-                case TwoDTools.PlayerController2D.JumpType.ItalianPlumber:
+                case TwoDTools.PlayerController2DData.JumpType.ItalianPlumber:
                     break;
-                case TwoDTools.PlayerController2D.JumpType.MeatSquare:
+                case TwoDTools.PlayerController2DData.JumpType.MeatSquare:
                     if (playerController.playerState.IsTouchingWall())
                     {
                         // facing left
                         if (transform.localScale.x < 0)
                         {
                             pos.x += OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = playerController.maximumHorizontalVelocity/2;
-                            playerController.currentVelocity.y = playerController.initialBurstJump;
+                            playerController.currentVelocity.x = playerController.playerControllerData.maximumHorizontalVelocity/2;
+                            playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();
                             break;
@@ -97,8 +97,8 @@ namespace TwoDTools
                         if (transform.localScale.x > 0)
                         {
                             pos.x -= OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity/2;
-                            playerController.currentVelocity.y = playerController.initialBurstJump;
+                            playerController.currentVelocity.x = -playerController.playerControllerData.maximumHorizontalVelocity/2;
+                            playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();
                             break;
@@ -112,8 +112,8 @@ namespace TwoDTools
                         if (transform.localScale.x < 0)
                         {
                             pos.x -= OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = -playerController.maximumHorizontalVelocity / 1.5f;
-                            playerController.currentVelocity.y = playerController.initialBurstJump;
+                            playerController.currentVelocity.x = -playerController.playerControllerData.maximumHorizontalVelocity / 1.5f;
+                            playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();
                             break;
@@ -122,8 +122,8 @@ namespace TwoDTools
                         if (transform.localScale.x > 0)
                         {
                             pos.x += OFFSET_AMOUNT;
-                            playerController.currentVelocity.x = playerController.maximumHorizontalVelocity / 1.5f;
-                            playerController.currentVelocity.y = playerController.initialBurstJump;
+                            playerController.currentVelocity.x = playerController.playerControllerData.maximumHorizontalVelocity / 1.5f;
+                            playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                             walljumpPressed = true;
                             playerController.playerState.ResetTouchWalls();
                             break;

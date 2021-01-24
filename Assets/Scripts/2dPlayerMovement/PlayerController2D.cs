@@ -16,143 +16,52 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
+using System.IO;
+#endif
+
 namespace TwoDTools
 {
     [RequireComponent(typeof(TwoDTools.PlayerState))]
     public class PlayerController2D : MonoBehaviour
     {
-        public static float GRAVITY = 11f;
-        public static float MAX_FALL_SPEED = 15f;
-        #region Presets
-
-        ///// Enum to be used by custom inspector for filling up variables with setting types to match 
-        ///// popular game/control Styles
-        //public enum ControlType
-        //{
-        //    SuperPlumberBro,
-        //    FastHedgehog,
-        //    Hamguy,
-        //    Arcade,
-        //    Custom
-        //}
-        //public ControlType controlType = ControlType.Custom;
-        #endregion //Presets
-        #region Controller Input Variables
-        /// Required Input Source for Updates to Work With Other Components
-        /// This should be replaced with your own input manager 
+        public PlayerController2DData playerControllerData;
         public PlayerController2DInput input;
+
         public TwoDTools.PlayerState playerState;
-        #endregion
-
-
-        #region Player Movement 
-
-#if UNITY_EDITOR
-        public bool showMovementGUI = true;
-#endif
+        TwoDTools.PlayerMovement playerMovement;
+        TwoDTools.PlayerJump playerJump;
+        TwoDTools.PlayerWallJump playerWallJump;
 
         // We use Vector3 to avoid any casting operations
         public Vector3 currentVelocity;
         public Vector3 externalForceVelocity;
         public Vector3 normalisedVelocity;
-        TwoDTools.PlayerMovement playerMovement;
-        public float maximumHorizontalVelocity = 12f; // minimumSpeed is zero opposite direction is negative max
 
-        #endregion // Player Movement
-
-
-        #region Acceleration and Momentum Variables
-        public bool useAcceleration = false;
-        public float acceleration = 5.0f;
-
-        public bool useSprint;
-        public float sprintSpeedMultiplier = 1.5f;
-
-        public float deceleration = 5.0f;
-
-        public bool useAirMomentum = false;
-        public float airDeceleration = 1f;
-        public float airAcceleration = 1.5f;
-
-        #endregion //Acceleration and momentum
-
-
-        /// <summary>
-        /// Everything Jumping Goes Here
-        /// </summary>
-        #region Jumping
-
-#if UNITY_EDITOR
-        public bool showJumpGUI = true;
-#endif
-        TwoDTools.PlayerJump playerJump;
-
-        public enum JumpType
-        {
-            MeatSquare,
-            BlueHedgehog,
-            ItalianPlumber,
-            PreItalianPlumber
-        }
-        public JumpType jumpType = JumpType.PreItalianPlumber;
-
-        public float initialBurstJump = 8f;
-
-        public float jumpVelocityDegradation = 1f;
-        public float jumpVelocityDegradationWall = 1f;
-
-        public bool useCoyoteTime;
-        public float coyoteTime = .25f;
-
-        public bool usePreEmptiveCoyoteTime;
-        public float preEmptiveCoyoteTime = 0.16f;
         public float pressedAt;
 
         public float lastTouchedGround;
 
-        #endregion // Jumping
-
-
-
-        #region Raycast Setup
-
-#if UNITY_EDITOR
-        public bool showRaycastGUI = true;
-#endif
-        // Horizontal
-        public int horizontalRaycasts = 5;
-        public float raycastSpreadAmountHorizontal = 0f;
-        public float raycastLengthHorizontal = .31f;
-        // Vertical
-        public int verticalRaycasts = 5;
-        public float raycastSpreadAmountVertical = 0f;
-        public float raycastLengthVertical = .61f;
-        // Layer Mask Setup
-        public LayerMask terrainLayer;
-        //public string[] collsionOptions = { "Default" };
-        #endregion // Raycast Setup
-
-        #region Falling
-        public float maximumFallVelocity;
-        #endregion
-
 
         private float initialXScale;
+
         private SpriteRenderer spriteRenderer;
         private BoxCollider2D boxCollider;
-
         private Rigidbody2D rb;
 
 
-        // WallJump
-        TwoDTools.PlayerWallJump playerWallJump;
+
+#if UNITY_EDITOR
+
+#endif
+
         public void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
             initialXScale = transform.localScale.x;
-            jumpType = JumpType.MeatSquare;
+            playerControllerData.jumpType = PlayerController2DData.JumpType.MeatSquare;
             playerState = GetComponent<TwoDTools.PlayerState>();
 
             playerMovement = GetComponent<TwoDTools.PlayerMovement>();
@@ -201,7 +110,7 @@ namespace TwoDTools
 
         void CoyoteTimeSetup()
         {
-            if(!useCoyoteTime)
+            if(!playerControllerData.useCoyoteTime)
             {
                 return;
             }
@@ -213,7 +122,7 @@ namespace TwoDTools
 
         void PreCoyoteTimeSetup()
         {
-            if(!usePreEmptiveCoyoteTime)
+            if(!playerControllerData.usePreEmptiveCoyoteTime)
             {
                 return;
             }
@@ -247,15 +156,15 @@ namespace TwoDTools
 
         public void ApplyGravtiy()
         {
-            currentVelocity.y -= GRAVITY * Time.fixedDeltaTime;
-            if (currentVelocity.y > MAX_FALL_SPEED)
+            currentVelocity.y -= TwoDTools.PlayerController2DData.GRAVITY * Time.fixedDeltaTime;
+            if (currentVelocity.y > TwoDTools.PlayerController2DData.MAX_FALL_SPEED)
             {
-                currentVelocity.y = MAX_FALL_SPEED;
+                currentVelocity.y = TwoDTools.PlayerController2DData.MAX_FALL_SPEED;
             }
 
-            else if (currentVelocity.y < -MAX_FALL_SPEED)
+            else if (currentVelocity.y < -TwoDTools.PlayerController2DData.MAX_FALL_SPEED)
             {
-                currentVelocity.y = -MAX_FALL_SPEED;
+                currentVelocity.y = -TwoDTools.PlayerController2DData.MAX_FALL_SPEED;
             }
             if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
             {
@@ -276,14 +185,6 @@ namespace TwoDTools
                 }
 
             }
-
-            //if (playerState.IsTouchingSlope())
-            //{
-            //    if (currentVelocity.y <= 0.0f)
-            //    {
-            //        currentVelocity.y = 0;
-            //    }
-            //}
         } // End Apply Gravity
 
         public PlayerController2DInput GetInput()
@@ -360,15 +261,40 @@ namespace TwoDTools
             this.input = input;
         }
 
-#endif
 
-        void OnCollision2DStay(Collider2D col)
+        public void LoadSettings(string fileName)
         {
-            if (col.CompareTag("Terrain"))
+            string filePath = Application.dataPath + "/2DCharacterController Saved Settings/" + fileName + ".txt";
+
+            if (File.Exists(filePath))
             {
-                currentVelocity.y = 0;
+                string dataAsJson = File.ReadAllText(filePath);
+                playerControllerData = JsonUtility.FromJson<TwoDTools.PlayerController2DData>(dataAsJson);
+                return;
+            }
+            else
+            {
+                playerControllerData = new TwoDTools.PlayerController2DData();
             }
         }
+
+        public void SaveSettings(string fileName)
+        {
+            if (!Directory.Exists(Application.dataPath + "/" + "/2DCharacterController Saved Settings/"))
+            {
+                Directory.CreateDirectory(Application.dataPath + "/" + "/2DCharacterController Saved Settings/");
+            }
+            string dataAsJson = JsonUtility.ToJson(playerControllerData);
+
+            using (StreamWriter sw = File.CreateText(Application.dataPath + "/2DCharacterController Saved Settings/" + fileName + ".txt"))
+            {
+                sw.Write(dataAsJson);
+            }
+
+            AssetDatabase.Refresh();
+        }
+
+#endif
 
     }
 }
@@ -382,6 +308,14 @@ public class PlayerController2DEditor : UnityEditor.Editor
 {
     GUIStyle titles = new GUIStyle();
     GUIStyle miniTitles = new GUIStyle();
+
+    // Saving / Exporting Settinigs
+    public string fileName;
+    public TextAsset file;
+    public bool activateSave;
+    public bool save;
+    public bool activateLoad;
+    public bool load;
 
 
     void SetupTitlesGUIStyle()
@@ -408,14 +342,14 @@ public class PlayerController2DEditor : UnityEditor.Editor
         var playerController = target as TwoDTools.PlayerController2D;
 
 
-        TwoDTools.PlayerController2D.GRAVITY = EditorGUILayout.FloatField("Gravity", TwoDTools.PlayerController2D.GRAVITY);
+        TwoDTools.PlayerController2DData.GRAVITY = EditorGUILayout.FloatField("Gravity", TwoDTools.PlayerController2DData.GRAVITY);
 
         playerController.AddPlayerState();
         ///====================================================================================================================
         /// Movement Inspector
         ///====================================================================================================================
-        playerController.showMovementGUI = EditorGUILayout.ToggleLeft("Show Movement Settings", playerController.showMovementGUI);
-        switch (playerController.showMovementGUI)
+        playerController.playerControllerData.showMovementGUI = EditorGUILayout.ToggleLeft("Show Movement Settings", playerController.playerControllerData.showMovementGUI);
+        switch (playerController.playerControllerData.showMovementGUI)
         {
             case true:
                 PlayerMovementGUI(playerController);
@@ -429,8 +363,8 @@ public class PlayerController2DEditor : UnityEditor.Editor
         ///====================================================================================================================
         /// Jump Inspector
         ///====================================================================================================================
-        playerController.showJumpGUI = EditorGUILayout.ToggleLeft("Show Jump Settings", playerController.showJumpGUI);
-        switch (playerController.showJumpGUI)
+        playerController.playerControllerData.showJumpGUI = EditorGUILayout.ToggleLeft("Show Jump Settings", playerController.playerControllerData.showJumpGUI);
+        switch (playerController.playerControllerData.showJumpGUI)
         {
             case true:
                 PlayerJumpGUI(playerController);
@@ -444,8 +378,8 @@ public class PlayerController2DEditor : UnityEditor.Editor
         ///====================================================================================================================
         /// Raycast Inspector
         ///====================================================================================================================
-        playerController.showRaycastGUI = EditorGUILayout.ToggleLeft("Show Raycast Settings", playerController.showRaycastGUI);
-        switch (playerController.showRaycastGUI)
+        playerController.playerControllerData.showRaycastGUI = EditorGUILayout.ToggleLeft("Show Raycast Settings", playerController.playerControllerData.showRaycastGUI);
+        switch (playerController.playerControllerData.showRaycastGUI)
         {
             case true:
                 RaycastGUI(playerController);
@@ -454,6 +388,15 @@ public class PlayerController2DEditor : UnityEditor.Editor
         }
         ///====================================================================================================================
 
+        ///====================================================================================================================
+        /// Save
+        ///====================================================================================================================
+
+        SaveSettingsGUI(playerController);
+        ///====================================================================================================================
+        /// Load
+        ///====================================================================================================================
+        LoadSettingsGUI(playerController);
 
         if (GUI.changed)
         {
@@ -474,7 +417,7 @@ public class PlayerController2DEditor : UnityEditor.Editor
         playerController.normalisedVelocity = EditorGUILayout.Vector2Field("Normalised Speed", playerController.normalisedVelocity);
         EditorGUI.EndDisabledGroup();
 
-        playerController.maximumHorizontalVelocity = EditorGUILayout.FloatField("Maximum Speed", playerController.maximumHorizontalVelocity);
+        playerController.playerControllerData.maximumHorizontalVelocity = EditorGUILayout.FloatField("Maximum Speed", playerController.playerControllerData.maximumHorizontalVelocity);
 
         AccelerationGUIDisplay(playerController);
     }
@@ -486,52 +429,52 @@ public class PlayerController2DEditor : UnityEditor.Editor
         RaycastHorizontalGUISetup(playerController);
         GUILayout.Label("Vertical Raycast Setup", miniTitles);
         RaycastVerticalGUISetup(playerController);
-        playerController.terrainLayer = TwoDTools.TwoDEditor.LayerMaskField("Collision Flags", playerController.terrainLayer);
+        playerController.playerControllerData.terrainLayer = TwoDTools.TwoDEditor.LayerMaskField("Collision Flags", playerController.playerControllerData.terrainLayer);
     }
 
 
     void RaycastHorizontalGUISetup(TwoDTools.PlayerController2D playerController)
     {
-        playerController.horizontalRaycasts = EditorGUILayout.IntField("Amount of Horizontal Raycasts", playerController.horizontalRaycasts);
+        playerController.playerControllerData.horizontalRaycasts = EditorGUILayout.IntField("Amount of Horizontal Raycasts", playerController.playerControllerData.horizontalRaycasts);
 
-        playerController.raycastSpreadAmountHorizontal = EditorGUILayout.FloatField("Spread Amount", playerController.raycastSpreadAmountHorizontal);
+        playerController.playerControllerData.raycastSpreadAmountHorizontal = EditorGUILayout.FloatField("Spread Amount", playerController.playerControllerData.raycastSpreadAmountHorizontal);
 
-        playerController.raycastLengthHorizontal = EditorGUILayout.FloatField("Length", playerController.raycastLengthHorizontal);
+        playerController.playerControllerData.raycastLengthHorizontal = EditorGUILayout.FloatField("Length", playerController.playerControllerData.raycastLengthHorizontal);
 
     }
     void RaycastVerticalGUISetup(TwoDTools.PlayerController2D playerController)
     {
-        playerController.verticalRaycasts = EditorGUILayout.IntField("Amount of Raycasts", playerController.verticalRaycasts);
+        playerController.playerControllerData.verticalRaycasts = EditorGUILayout.IntField("Amount of Raycasts", playerController.playerControllerData.verticalRaycasts);
 
-        playerController.raycastSpreadAmountVertical = EditorGUILayout.FloatField("Spread Amount", playerController.raycastSpreadAmountVertical);
+        playerController.playerControllerData.raycastSpreadAmountVertical = EditorGUILayout.FloatField("Spread Amount", playerController.playerControllerData.raycastSpreadAmountVertical);
 
-        playerController.raycastLengthVertical = EditorGUILayout.FloatField("Length", playerController.raycastLengthVertical);
+        playerController.playerControllerData.raycastLengthVertical = EditorGUILayout.FloatField("Length", playerController.playerControllerData.raycastLengthVertical);
     }
 
     void AccelerationGUIDisplay(TwoDTools.PlayerController2D playerController)
     {
-        playerController.useAcceleration = EditorGUILayout.Toggle("Use Acceleration", playerController.useAcceleration);
+        playerController.playerControllerData.useAcceleration = EditorGUILayout.Toggle("Use Acceleration", playerController.playerControllerData.useAcceleration);
 
-        switch (playerController.useAcceleration)
+        switch (playerController.playerControllerData.useAcceleration)
         {
             case true:
-                playerController.acceleration = EditorGUILayout.FloatField("Acceleration", playerController.acceleration);
-                playerController.deceleration = EditorGUILayout.FloatField("Deceleration", playerController.deceleration);
+                playerController.playerControllerData.acceleration = EditorGUILayout.FloatField("Acceleration", playerController.playerControllerData.acceleration);
+                playerController.playerControllerData.deceleration = EditorGUILayout.FloatField("Deceleration", playerController.playerControllerData.deceleration);
 
-                playerController.useSprint = EditorGUILayout.Toggle("Use Sprint", playerController.useSprint);
-                switch (playerController.useSprint)
+                playerController.playerControllerData.useSprint = EditorGUILayout.Toggle("Use Sprint", playerController.playerControllerData.useSprint);
+                switch (playerController.playerControllerData.useSprint)
                 {
                     case true:
-                        playerController.sprintSpeedMultiplier = EditorGUILayout.FloatField("Sprint Speed Multiplier", playerController.sprintSpeedMultiplier);
+                        playerController.playerControllerData.sprintSpeedMultiplier = EditorGUILayout.FloatField("Sprint Speed Multiplier", playerController.playerControllerData.sprintSpeedMultiplier);
                         break;
                 }//end sprint
 
-                playerController.useAirMomentum = EditorGUILayout.Toggle("Use Air Momentum", playerController.useAirMomentum);
-                switch (playerController.useAirMomentum)
+                playerController.playerControllerData.useAirMomentum = EditorGUILayout.Toggle("Use Air Momentum", playerController.playerControllerData.useAirMomentum);
+                switch (playerController.playerControllerData.useAirMomentum)
                 {
                     case true:
-                        playerController.airAcceleration = EditorGUILayout.FloatField("Air Acceleration", playerController.airAcceleration);
-                        playerController.airDeceleration = EditorGUILayout.FloatField("Air Deceleration", playerController.airDeceleration);
+                        playerController.playerControllerData.airAcceleration = EditorGUILayout.FloatField("Air Acceleration", playerController.playerControllerData.airAcceleration);
+                        playerController.playerControllerData.airDeceleration = EditorGUILayout.FloatField("Air Deceleration", playerController.playerControllerData.airDeceleration);
                         break;
                 }// end airMomentum
 
@@ -545,35 +488,88 @@ public class PlayerController2DEditor : UnityEditor.Editor
 
         GUILayout.Label("Player Jump", titles);
         //public JumpType jumpType = JumpType.PreItalianPlumber;
-        playerController.initialBurstJump = EditorGUILayout.FloatField("Initial Jump Velocity", playerController.initialBurstJump);
-        playerController.jumpVelocityDegradation = EditorGUILayout.FloatField("Jump Velocity Degradation", playerController.jumpVelocityDegradation);
+        playerController.playerControllerData.initialBurstJump = EditorGUILayout.FloatField("Initial Jump Velocity", playerController.playerControllerData.initialBurstJump);
+        playerController.playerControllerData.jumpVelocityDegradation = EditorGUILayout.FloatField("Jump Velocity Degradation", playerController.playerControllerData.jumpVelocityDegradation);
         
-        playerController.jumpVelocityDegradationWall = EditorGUILayout.FloatField(new GUIContent("Gravity Friction", "Friction Multiplier when against terrain"), 
-            playerController.jumpVelocityDegradationWall);
+        playerController.playerControllerData.jumpVelocityDegradationWall = EditorGUILayout.FloatField(new GUIContent("Gravity Friction", "Friction Multiplier when against terrain"), 
+            playerController.playerControllerData.jumpVelocityDegradationWall);
 
 
-        playerController.useCoyoteTime = EditorGUILayout.Toggle("Use Coyote Time", playerController.useCoyoteTime);
+        playerController.playerControllerData.useCoyoteTime = EditorGUILayout.Toggle("Use Coyote Time", playerController.playerControllerData.useCoyoteTime);
 
-        switch (playerController.useCoyoteTime)
+        switch (playerController.playerControllerData.useCoyoteTime)
         {
             case false:
                 break;
 
             case true:
-                playerController.coyoteTime = EditorGUILayout.FloatField("Coyote Time", playerController.coyoteTime);
+                playerController.playerControllerData.coyoteTime = EditorGUILayout.FloatField("Coyote Time", playerController.playerControllerData.coyoteTime);
                 break;
 
         }
-        playerController.usePreEmptiveCoyoteTime = EditorGUILayout.Toggle(" Use Pre-Emptive Coyote Time", playerController.usePreEmptiveCoyoteTime);
-        switch (playerController.usePreEmptiveCoyoteTime)
+        playerController.playerControllerData.usePreEmptiveCoyoteTime = EditorGUILayout.Toggle("Use Pre-Emptive Coyote Time", playerController.playerControllerData.usePreEmptiveCoyoteTime);
+        switch (playerController.playerControllerData.usePreEmptiveCoyoteTime)
         {
             case false:
                 break;
 
             case true:
-                playerController.preEmptiveCoyoteTime = EditorGUILayout.FloatField("Pre-Emptive Coyote Time", playerController.preEmptiveCoyoteTime);
+                playerController.playerControllerData.preEmptiveCoyoteTime = EditorGUILayout.FloatField("Pre-Emptive Coyote Time", playerController.playerControllerData.preEmptiveCoyoteTime);
                 break;
+        }
+    }
 
+
+    void SaveSettingsGUI(TwoDTools.PlayerController2D playerController)
+    {
+        GUILayout.Label("Save Settings", titles);
+        activateSave = EditorGUILayout.Toggle("Show Save Settings", activateSave);
+        switch (activateSave)
+        {
+            case false:
+                break;
+            case true:
+                fileName = EditorGUILayout.TextField("Save File Name As: ", fileName);
+                save = EditorGUILayout.Toggle("Save File?", save);
+                switch (save)
+                {
+                    case false:
+                        break;
+                    case true:
+                        playerController.SaveSettings(fileName);
+                        save = false;
+                        activateSave = false;
+                        Debug.Log("Saved " + fileName);
+                        break;
+                }
+                break;
+        }
+
+    }
+
+    void LoadSettingsGUI(TwoDTools.PlayerController2D playerController)
+    {
+        GUILayout.Label("Load Settings", titles);
+        activateLoad = EditorGUILayout.Toggle("Show Load Settings", activateLoad);
+        switch (activateLoad)
+        {
+            case false:
+                break;
+            case true:
+                fileName = EditorGUILayout.TextField("Load File With Name: ", fileName);
+                load = EditorGUILayout.Toggle("Load File?", load);
+                switch (load)
+                {
+                    case false:
+                        break;
+                    case true:
+                        playerController.LoadSettings(fileName);
+                        load = false;
+                        activateLoad = false;
+                        Debug.Log("Loaded Settings From " + fileName);
+                        break;
+                }
+                break;
         }
 
     }

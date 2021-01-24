@@ -125,7 +125,7 @@ namespace Tests
         {
             GameObject player = game.GetPlayer();
             player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity =
-                new Vector2(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, 0);
+                new Vector2(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, 0);
 
             player.GetComponent<TwoDTools.PlayerController2DInput>().SetRightButtonHeld();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
@@ -133,19 +133,19 @@ namespace Tests
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
 
             float previousVelocity = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
-            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, previousVelocity);
+            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, previousVelocity);
             // check max speed is not increasing
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
-            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, previousVelocity);
+            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, previousVelocity);
 
             player.GetComponent<TwoDTools.PlayerController2DInput>().SetSprintButtonHeld();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             // Show is increasing with sprint button held
-            Assert.Less(player.GetComponent<TwoDTools.PlayerController2D>().maximumHorizontalVelocity, 
+            Assert.Less(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, 
                 player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x);
 
 
