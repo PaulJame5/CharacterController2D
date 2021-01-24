@@ -24,15 +24,14 @@ namespace TwoDTools
                 if(!playerController.playerState.IsTouchingFloor() && playerController.currentVelocity.y > 0)
                 {
                     playerController.currentVelocity.y = 0;
-                    playerController.playerState.NotJumping();
                 }
+                playerController.playerState.NotJumping();
                 return;
             }
             if(input.JumpButtonPressed())
             {
                 CalcualteJump();
                 playerController.lastTouchedGround = -1;
-                playerController.playerState.Jumping();
                 return;
             }
             if(input.JumpButtonLetGo())
@@ -45,16 +44,26 @@ namespace TwoDTools
 
         public void JumpFixedUpdate()
         {
-            if (input.JumpButtonHeld())
+            if (!input.JumpButtonHeld())
+            {
+                return;
+            }
+            if (playerController.playerState.IsJumping() == false)
             {
                 if (playerController.pressedAt + playerController.playerControllerData.preEmptiveCoyoteTime > Time.timeSinceLevelLoad)
                 {
                     CalcualteJump();
-                    return;
                 }
-                CalculateJumpDegradation();
                 return;
             }
+            if (playerController.currentVelocity.y <= 0)
+            {
+                playerController.playerState.NotJumping();
+                return;
+            }
+            CalculateJumpDegradation();
+            return;
+
         }
 
 
@@ -72,6 +81,7 @@ namespace TwoDTools
                     return;
                 }
             }
+            playerController.playerState.StopSliding();
 
 
             switch (playerController.playerControllerData.jumpType)
@@ -82,6 +92,7 @@ namespace TwoDTools
                 case PlayerController2DData.JumpType.MeatSquare:
                     playerController.currentVelocity.y = playerController.playerControllerData.initialBurstJump;
                     playerController.playerState.ResetTouchingSlope();
+                    playerController.playerState.Jumping();
                     break;
             }
         }
@@ -90,7 +101,11 @@ namespace TwoDTools
         {
             if (playerController.playerState.IsTouchingFloor())
             {
-                return;
+                if (playerController.currentVelocity.y < 0)
+                {
+                    playerController.playerState.NotJumping();
+                }
+                    return;
             }
             if (playerController.currentVelocity.y <= 0)
             {
@@ -125,7 +140,7 @@ namespace TwoDTools
                 case PlayerController2DData.JumpType.MeatSquare:
                     if (playerController.currentVelocity.y > .1f)
                     {
-                        playerController.currentVelocity.y = PlayerController2DData.GRAVITY * Time.deltaTime;
+                        playerController.currentVelocity.y = playerController.playerControllerData.gravityForce * Time.deltaTime;
                     }
                     break;
             }
