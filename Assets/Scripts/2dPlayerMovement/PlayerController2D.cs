@@ -448,6 +448,8 @@ public class PlayerController2DEditor : UnityEditor.Editor
 
         playerController.playerControllerData.raycastLengthHorizontal = EditorGUILayout.FloatField("Length", playerController.playerControllerData.raycastLengthHorizontal);
 
+        playerController.playerControllerData.raycastHorizontalIgnoreTriggers = EditorGUILayout.Toggle("Ignore Triggers Horizontal", playerController.playerControllerData.raycastHorizontalIgnoreTriggers);
+
     }
     void RaycastVerticalGUISetup(TwoDTools.PlayerController2D playerController)
     {
@@ -455,7 +457,10 @@ public class PlayerController2DEditor : UnityEditor.Editor
 
         playerController.playerControllerData.raycastSpreadAmountVertical = EditorGUILayout.FloatField("Spread Amount", playerController.playerControllerData.raycastSpreadAmountVertical);
 
-        playerController.playerControllerData.raycastLengthVertical = EditorGUILayout.FloatField("Length", playerController.playerControllerData.raycastLengthVertical);
+        playerController.playerControllerData.raycastLengthVertical = EditorGUILayout.FloatField("Length", playerController.playerControllerData.raycastLengthVertical); 
+        
+        playerController.playerControllerData.raycastVerticalIgnoreTriggers = EditorGUILayout.Toggle("Ignore Triggers Vertical", playerController.playerControllerData.raycastVerticalIgnoreTriggers);
+
     }
 
     void AccelerationGUIDisplay(TwoDTools.PlayerController2D playerController)

@@ -66,6 +66,7 @@ namespace Tests
 
             File.Delete(Application.dataPath + "/2DCharacterController Saved Settings/" + "test1" + ".txt");
             Assert.AreEqual(File.Exists(Application.dataPath + "/2DCharacterController Saved Settings/" + "test1" + ".txt"), false);
+
             AssetDatabase.Refresh();
         }
 

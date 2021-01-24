@@ -98,10 +98,12 @@ namespace TwoDTools
         public int horizontalRaycasts = 5;
         public float raycastSpreadAmountHorizontal = 0f;
         public float raycastLengthHorizontal = .31f;
+        public bool raycastHorizontalIgnoreTriggers = false;
         // Vertical
         public int verticalRaycasts = 5;
         public float raycastSpreadAmountVertical = 0f;
         public float raycastLengthVertical = .61f;
+        public bool raycastVerticalIgnoreTriggers = false;
 
         // Layer Mask Setup
         public LayerMask terrainLayer;
