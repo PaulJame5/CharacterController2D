@@ -268,7 +268,7 @@ namespace TwoDTools
         }
 
 
-        public void LoadSettings(string fileName)
+        public bool LoadSettings(string fileName)
         {
             string filePath = Application.dataPath + "/2DCharacterController Saved Settings/" + fileName + ".txt";
 
@@ -276,15 +276,13 @@ namespace TwoDTools
             {
                 string dataAsJson = File.ReadAllText(filePath);
                 playerControllerData = JsonUtility.FromJson<TwoDTools.PlayerController2DData>(dataAsJson);
-                return;
+                return true;
             }
-            else
-            {
-                playerControllerData = new TwoDTools.PlayerController2DData();
-            }
+
+            return false;
         }
 
-        public void SaveSettings(string fileName)
+        public bool SaveSettings(string fileName)
         {
             if (!Directory.Exists(Application.dataPath + "/" + "/2DCharacterController Saved Settings/"))
             {
@@ -298,6 +296,7 @@ namespace TwoDTools
             }
 
             AssetDatabase.Refresh();
+            return true;
         }
 
 #endif
