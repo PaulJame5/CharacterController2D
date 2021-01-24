@@ -443,9 +443,11 @@ namespace TwoDTools
             {
                 case CheckType.Vertical:
                     offset = new Vector2(spriteRenderer.size.x, 0);
+                    Physics2D.queriesHitTriggers = !playerController.playerControllerData.raycastVerticalIgnoreTriggers;
                     break;
                 case CheckType.Horizontal:
                     offset = new Vector2(0, spriteRenderer.size.y);
+                    Physics2D.queriesHitTriggers = !playerController.playerControllerData.raycastHorizontalIgnoreTriggers;
                     break;
             }
 

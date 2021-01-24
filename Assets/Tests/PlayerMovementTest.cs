@@ -92,6 +92,30 @@ namespace Tests
         }
 
 
+
+
+        [UnityTest]
+        public IEnumerator TestIgnoreTriggersSet()
+        {
+            GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastHorizontalIgnoreTriggers = true;
+
+            Assert.AreEqual(true, player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastHorizontalIgnoreTriggers);
+            player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastHorizontalIgnoreTriggers = false;
+
+            Assert.AreEqual(false, player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastHorizontalIgnoreTriggers);
+
+            player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastVerticalIgnoreTriggers= true;
+
+            Assert.AreEqual(true, player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastVerticalIgnoreTriggers);
+            player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastVerticalIgnoreTriggers = false;
+
+            Assert.AreEqual(false, player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.raycastVerticalIgnoreTriggers);
+
+            yield return new WaitForSeconds(1f);
+        }
+
+
         [UnityTest]
         public IEnumerator SlopeSlideTest()
         {
