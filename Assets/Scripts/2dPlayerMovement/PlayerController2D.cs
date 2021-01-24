@@ -83,7 +83,6 @@ namespace TwoDTools
             // use Raycasts for checking player state
             input.InputUpdate();
             SetFacingDirection();
-            playerState.ResetAllStates();
             playerState.UpdatePlayerState();
             CoyoteTimeSetup();
             PreCoyoteTimeSetup();
@@ -100,8 +99,6 @@ namespace TwoDTools
             playerJump.JumpFixedUpdate();
             playerMovement.MovementUpdate();
             ApplyExternalForces();
-
-            //ApplyGravityCalculation();
 
             NormaliseVelocity();
             rb.velocity = normalisedVelocity;
@@ -133,11 +130,20 @@ namespace TwoDTools
 
         }
 
+        public bool ApplySlopedVelocity()
+        {
+            if (!playerState.IsTouchingSlope())
+            {
+                return false;
+            }
+            normalisedVelocity = playerMovement.MoveOnSlope();
+            return true;
+        }
+
         private void NormaliseVelocity()
         {
-            if (playerState.IsTouchingSlope())
+            if(ApplySlopedVelocity())
             {
-                normalisedVelocity = playerMovement.MoveOnSlope();
                 return;
             }
             normalisedVelocity = currentVelocity;
@@ -156,15 +162,15 @@ namespace TwoDTools
 
         public void ApplyGravtiy()
         {
-            currentVelocity.y -= TwoDTools.PlayerController2DData.GRAVITY * Time.fixedDeltaTime;
-            if (currentVelocity.y > TwoDTools.PlayerController2DData.MAX_FALL_SPEED)
+            currentVelocity.y -= playerControllerData.gravityForce * Time.fixedDeltaTime;
+            if (currentVelocity.y > playerControllerData.maximumFallSpeed)
             {
-                currentVelocity.y = TwoDTools.PlayerController2DData.MAX_FALL_SPEED;
+                currentVelocity.y = playerControllerData.maximumFallSpeed;
             }
 
-            else if (currentVelocity.y < -TwoDTools.PlayerController2DData.MAX_FALL_SPEED)
+            else if (currentVelocity.y < -playerControllerData.maximumFallSpeed)
             {
-                currentVelocity.y = -TwoDTools.PlayerController2DData.MAX_FALL_SPEED;
+                currentVelocity.y = -playerControllerData.maximumFallSpeed;
             }
             if (playerState.IsTouchingCeiling() && currentVelocity.y > 0)
             {
@@ -342,7 +348,8 @@ public class PlayerController2DEditor : UnityEditor.Editor
         var playerController = target as TwoDTools.PlayerController2D;
 
 
-        TwoDTools.PlayerController2DData.GRAVITY = EditorGUILayout.FloatField("Gravity", TwoDTools.PlayerController2DData.GRAVITY);
+        playerController.playerControllerData.gravityForce = EditorGUILayout.FloatField("Gravity", playerController.playerControllerData.gravityForce);
+        playerController.playerControllerData.maximumFallSpeed = EditorGUILayout.FloatField("Maximum Fall Speed", playerController.playerControllerData.maximumFallSpeed);
 
         playerController.AddPlayerState();
         ///====================================================================================================================
@@ -420,6 +427,7 @@ public class PlayerController2DEditor : UnityEditor.Editor
         playerController.playerControllerData.maximumHorizontalVelocity = EditorGUILayout.FloatField("Maximum Speed", playerController.playerControllerData.maximumHorizontalVelocity);
 
         AccelerationGUIDisplay(playerController);
+        SlopeMovementSettingsGUI(playerController);
     }
 
 
@@ -519,6 +527,32 @@ public class PlayerController2DEditor : UnityEditor.Editor
         }
     }
 
+    void SlopeMovementSettingsGUI(TwoDTools.PlayerController2D playerController)
+    {
+
+        GUILayout.Label("Slope Settings", titles);
+        playerController.playerControllerData.useSlopeMovement = EditorGUILayout.Toggle("Use Slope Movement", playerController.playerControllerData.useSlopeMovement);
+        switch (playerController.playerControllerData.useSlopeMovement)
+        {
+            case false:
+                break;
+            case true:
+                playerController.playerControllerData.maximumSlopeAngle = EditorGUILayout.FloatField("Maximum Travesable Angle", playerController.playerControllerData.maximumSlopeAngle);
+
+
+                playerController.playerControllerData.useSlopeSlideMovement = EditorGUILayout.Toggle("Use Slope Slide", playerController.playerControllerData.useSlopeSlideMovement);
+                switch (playerController.playerControllerData.useSlopeSlideMovement)
+                {
+                    case false:
+                        break;
+                    case true:
+                        playerController.playerControllerData.maximumSlopeSlide = EditorGUILayout.FloatField("Slide At Angle", playerController.playerControllerData.maximumSlopeSlide);
+                        break;
+                }
+                break;
+        }
+    }
+
 
     void SaveSettingsGUI(TwoDTools.PlayerController2D playerController)
     {
@@ -546,6 +580,7 @@ public class PlayerController2DEditor : UnityEditor.Editor
         }
 
     }
+
 
     void LoadSettingsGUI(TwoDTools.PlayerController2D playerController)
     {

@@ -7,9 +7,9 @@ namespace TwoDTools
     [System.Serializable]
     public class PlayerController2DData
     {
-
-        public static float GRAVITY = 11f;
-        public static float MAX_FALL_SPEED = 15f;
+        // Gravity Affectors
+        public float gravityForce = 11f;
+        public float maximumFallSpeed = 15f;
         #region Presets
         ///// Enum to be used by custom inspector for filling up variables with setting types to match 
         ///// popular game/control Styles
@@ -44,6 +44,13 @@ namespace TwoDTools
         public float sprintSpeedMultiplier = 1.5f;
 
         public float deceleration = 5.0f;
+
+        public bool useSlopeMovement = true;
+        public float maximumSlopeAngle = 60;
+
+        public bool useSlopeSlideMovement = true;
+        public float maximumSlopeSlide = 80;
+        public float slideDecellerationDivisor = 4;
 
         public bool useAirMomentum = false;
         public float airDeceleration = 1f;
@@ -100,8 +107,6 @@ namespace TwoDTools
         public LayerMask terrainLayer;
         #endregion // Raycast Setup
 
-        #region Falling
-        public float maximumFallVelocity;
-        #endregion
+
     }
 }

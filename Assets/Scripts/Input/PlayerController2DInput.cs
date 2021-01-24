@@ -57,11 +57,14 @@ namespace TwoDTools
 
         private bool sprintButtonHeld;
 
+        private bool downKey;
+
         // you will want to use your own Input Manager possibly and that's totally fine
         // just be careful not to change variable and function names unless you know 
         // what you're doing as other classes rely on this
         public void InputUpdate()
         {
+            ResetInput();
             jumpButtonHeld = InputManager_2D.ActionButton();
             jumpButtonPressed = InputManager_2D.ActionButtonDown();
 
@@ -73,11 +76,16 @@ namespace TwoDTools
 
             sprintButtonHeld = InputManager_2D.LeftShiftInput();
             jumpButtonLetGo = InputManager_2D.ActionButtonUp();
+
+            downKey = InputManager_2D.DownInput();
         }
+
+       
 
         public void ResetInput()
         {
             jumpButtonPressed = false;
+            
             jumpButtonHeld = false;
             jumpButtonLetGo = false;
 
@@ -88,6 +96,7 @@ namespace TwoDTools
             rightInputKeyPressed = false;
 
             sprintButtonHeld = false;
+            downKey = false;
         }
 
         public bool JumpButtonPressed()
@@ -131,6 +140,15 @@ namespace TwoDTools
         public bool RightButton()
         {
             return rightInputKeyHeld;
+        }
+
+        public bool DownKeyHeld()
+        {
+            return downKey;
+        }
+        public void SetDownKeyHeld()
+        {
+            downKey = true;
         }
 
         public void SetRightButtonHeld()

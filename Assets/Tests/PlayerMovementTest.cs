@@ -79,13 +79,81 @@ namespace Tests
 
             player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeFront(true);
             player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeBack(true);
-            player.GetComponent<TwoDTools.PlayerState>().hitPointFront = new Vector2(0, 0);
-            player.GetComponent<TwoDTools.PlayerState>().hitPointBack = new Vector2(-1, 3);
-            player.GetComponent<TwoDTools.PlayerState>().slopeAngleFront = 50;
-            player.GetComponent<TwoDTools.PlayerState>().slopeAngleBack = 50;
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointFront(new Vector2(0, 0));
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointBack(new Vector2(-1, 3));
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleFront(50);
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleBack(50);
             player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
 
             Assert.Greater(previousX, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.x);
+            Assert.Greater(previousY, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.y);
+
+            yield return new WaitForSeconds(1f);
+        }
+
+
+        [UnityTest]
+        public IEnumerator SlopeSlideTest()
+        {
+            GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerState>().ResetAllStates();
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true);
+            player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y = 0;
+
+
+
+            float previousX = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
+            Assert.AreEqual(previousX, 0);
+
+            float previousY = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y;
+
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeFront(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeBack(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointFront(new Vector2(0, 0));
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointBack(new Vector2(-1, 3));
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleFront(79);
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleBack(79);
+            player.GetComponent<TwoDTools.PlayerState>().StartSliding();
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true); 
+            player.GetComponent<TwoDTools.PlayerMovement>().SlopeAccelerateRight();
+            player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
+
+            Assert.Less(previousX, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.x);
+            Assert.Greater(previousY, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.y);
+
+            yield return new WaitForSeconds(1f);
+        }
+
+
+
+        [UnityTest]
+        public IEnumerator SlopeSlideInputTest()
+        {
+            GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerState>().ResetAllStates();
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true);
+            player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y = 0;
+
+
+
+            float previousX = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
+            Assert.AreEqual(previousX, 0);
+
+            float previousY = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.y;
+
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeFront(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingSlopeBack(true);
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointFront(new Vector2(0, 0));
+            player.GetComponent<TwoDTools.PlayerState>().SetHitPointBack(new Vector2(-1, 3));
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleFront(60);
+            player.GetComponent<TwoDTools.PlayerState>().SetSlopeAngleBack(60);
+            player.GetComponent<TwoDTools.PlayerState>().StartSliding();
+            player.GetComponent<TwoDTools.PlayerState>().SetIsTouchingFloor(true);
+            player.GetComponent<TwoDTools.PlayerController2D>().input.SetDownKeyHeld();
+            player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
+            player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity = player.GetComponent<TwoDTools.PlayerMovement>().MoveOnSlope();
+
+            Assert.Less(previousX, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.x);
             Assert.Greater(previousY, player.GetComponent<TwoDTools.PlayerController2D>().normalisedVelocity.y);
 
             yield return new WaitForSeconds(1f);
@@ -124,6 +192,7 @@ namespace Tests
         public IEnumerator SprintButtonChangesMaximumSpeed()
         {
             GameObject player = game.GetPlayer();
+            player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.useSprint = true;
             player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity =
                 new Vector2(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, 0);
 
@@ -133,13 +202,13 @@ namespace Tests
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
 
             float previousVelocity = player.GetComponent<TwoDTools.PlayerController2D>().currentVelocity.x;
-            Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, previousVelocity);
+            Assert.AreEqual(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, previousVelocity);
             // check max speed is not increasing
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             Assert.GreaterOrEqual(player.GetComponent<TwoDTools.PlayerController2D>().playerControllerData.maximumHorizontalVelocity, previousVelocity);
-
+            player.GetComponent<TwoDTools.PlayerController2DInput>().SetRightButtonHeld();
             player.GetComponent<TwoDTools.PlayerController2DInput>().SetSprintButtonHeld();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
             player.GetComponent<TwoDTools.PlayerMovement>().CalculateAcceleration();
