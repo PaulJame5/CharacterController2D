@@ -85,6 +85,11 @@ namespace TwoDTools
         public bool usePreEmptiveCoyoteTime;
         public float preEmptiveCoyoteTime = 0.16f;
 
+
+        public bool useWallJump = true;
+        public float horizontalForceJumpingBackIntoWall = 4;
+        public float horizontalForceJumpingAwayFromWall = 6;
+
         #endregion // Jumping
 
 

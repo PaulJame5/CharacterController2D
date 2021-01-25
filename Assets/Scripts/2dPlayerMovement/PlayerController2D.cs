@@ -22,7 +22,6 @@ using System.IO;
 
 namespace TwoDTools
 {
-    [RequireComponent(typeof(TwoDTools.PlayerState))]
     public class PlayerController2D : MonoBehaviour
     {
         public PlayerController2DData playerControllerData;
@@ -45,8 +44,6 @@ namespace TwoDTools
 
         private float initialXScale;
 
-        private SpriteRenderer spriteRenderer;
-        private BoxCollider2D boxCollider;
         private Rigidbody2D rb;
 
 
@@ -57,23 +54,77 @@ namespace TwoDTools
 
         public void Awake()
         {
-            rb = GetComponent<Rigidbody2D>();
-            QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = 60;
             initialXScale = transform.localScale.x;
             playerControllerData.jumpType = PlayerController2DData.JumpType.MeatSquare;
-            playerState = GetComponent<TwoDTools.PlayerState>();
+            SetupComponents();
+        }
+        private void SetupComponents()
+        {
+            SetupInput();
+            SetupRigidbody();
+            SetupPlayerState();
+            SetupPlayerMovement();
+            SetupPlayerJump();
+            if (playerControllerData.useWallJump)
+            {
+                SetupPlayerWallJump();
+            }
+        }
 
-            playerMovement = GetComponent<TwoDTools.PlayerMovement>();
+        void SetupInput()
+        {
+            if (GetComponent<TwoDTools.PlayerController2DInput>() == null)
+            {
+                gameObject.AddComponent<TwoDTools.PlayerController2DInput>();
+            }
+            input = GetComponent<TwoDTools.PlayerController2DInput>();
+        }
+    
 
-            playerJump = GetComponent<TwoDTools.PlayerJump>();
-
-            spriteRenderer = GetComponent<SpriteRenderer>();
-
-            boxCollider = GetComponent<BoxCollider2D>();
-
+        void SetupPlayerWallJump()
+        {
+            if (GetComponent<TwoDTools.PlayerWallJump>() == null)
+            {
+                gameObject.AddComponent<TwoDTools.PlayerWallJump>();
+            }
             playerWallJump = gameObject.AddComponent<TwoDTools.PlayerWallJump>();
+        }
 
+        void SetupPlayerJump()
+        {
+            if (GetComponent<TwoDTools.PlayerJump>() == null)
+            {
+                gameObject.AddComponent<TwoDTools.PlayerJump>();
+            }
+            playerJump = GetComponent<TwoDTools.PlayerJump>();
+        }
+
+        void SetupRigidbody()
+        {
+            if (GetComponent<Rigidbody2D>() == null)
+            {
+                gameObject.AddComponent<Rigidbody2D>();
+            }
+            rb = GetComponent<Rigidbody2D>();
+            rb.gravityScale = 0;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+        void SetupPlayerState()
+        {
+            if (GetComponent<TwoDTools.PlayerState>() == null)
+            {
+                gameObject.AddComponent<TwoDTools.PlayerState>();
+            }
+            playerState = GetComponent<TwoDTools.PlayerState>();
+        }
+
+        void SetupPlayerMovement()
+        {
+            if (GetComponent<TwoDTools.PlayerMovement>() == null)
+            {
+                gameObject.AddComponent<TwoDTools.PlayerMovement>();
+            }
+            playerMovement = GetComponent<TwoDTools.PlayerMovement>();
         }
 
         // Update is called once per frame
@@ -82,15 +133,23 @@ namespace TwoDTools
             // Detect Input , Then Set Facing Direction before we  
             // use Raycasts for checking player state
             input.InputUpdate();
+            ApplyUpdate();
+        }
+
+        public void ApplyUpdate()
+        {
             SetFacingDirection();
             playerState.UpdatePlayerState();
             CoyoteTimeSetup();
             PreCoyoteTimeSetup();
 
-
             // Jump Update is a single button press adjustable  
             playerJump.JumpUpdate();
-            playerWallJump.WallJumpUpdate();
+
+            if (playerControllerData.useWallJump)
+            {
+                playerWallJump.WallJumpUpdate();
+            }
         }
 
         public void FixedUpdate()
@@ -102,7 +161,6 @@ namespace TwoDTools
 
             NormaliseVelocity();
             rb.velocity = normalisedVelocity;
-
         }
 
         void CoyoteTimeSetup()
@@ -196,22 +254,6 @@ namespace TwoDTools
         public PlayerController2DInput GetInput()
         {
             return input;
-        }
-
-        public void AddPlayerMovement()
-        {
-            if (!GetComponent<TwoDTools.PlayerMovement>())
-            {
-                gameObject.AddComponent<TwoDTools.PlayerMovement>();
-            }
-        }
-
-        public void AddPlayerState()
-        {
-            if (!GetComponent<TwoDTools.PlayerState>())
-            {
-                gameObject.AddComponent<TwoDTools.PlayerState>();
-            }
         }
 
         public void RemovePlayerMovement()
@@ -350,7 +392,6 @@ public class PlayerController2DEditor : UnityEditor.Editor
         playerController.playerControllerData.gravityForce = EditorGUILayout.FloatField("Gravity", playerController.playerControllerData.gravityForce);
         playerController.playerControllerData.maximumFallSpeed = EditorGUILayout.FloatField("Maximum Fall Speed", playerController.playerControllerData.maximumFallSpeed);
 
-        playerController.AddPlayerState();
         ///====================================================================================================================
         /// Movement Inspector
         ///====================================================================================================================
@@ -416,7 +457,6 @@ public class PlayerController2DEditor : UnityEditor.Editor
     void PlayerMovementGUI(TwoDTools.PlayerController2D playerController)
     {
         GUILayout.Label("Player Movement", titles);
-        playerController.AddPlayerMovement();
         EditorGUI.BeginDisabledGroup(true);
         // We only want the current velocity as a readonly but still accessible by other classes/components for writing to
         playerController.currentVelocity = EditorGUILayout.Vector2Field("Current Speed", playerController.currentVelocity);
@@ -495,6 +535,26 @@ public class PlayerController2DEditor : UnityEditor.Editor
 
     }
 
+    void PlayerWallJumpGUI(TwoDTools.PlayerController2D playerController)
+    {
+        GUILayout.Label("Player Wall Jump", titles);
+
+        playerController.playerControllerData.useWallJump = EditorGUILayout.Toggle("Use Wall Jump", playerController.playerControllerData.useWallJump);
+
+        switch (playerController.playerControllerData.useWallJump)
+        {
+            case false:
+                break;
+            case true:
+                playerController.playerControllerData.horizontalForceJumpingAwayFromWall =
+                    EditorGUILayout.FloatField("Wall Jump Away From Wall Force", playerController.playerControllerData.horizontalForceJumpingAwayFromWall);
+
+                playerController.playerControllerData.horizontalForceJumpingBackIntoWall =
+                    EditorGUILayout.FloatField("Wall Jump Into Same Wall Force", playerController.playerControllerData.horizontalForceJumpingBackIntoWall);
+                break;
+        }
+    }
+
     void PlayerJumpGUI(TwoDTools.PlayerController2D playerController)
     {
 
@@ -503,7 +563,7 @@ public class PlayerController2DEditor : UnityEditor.Editor
         playerController.playerControllerData.initialBurstJump = EditorGUILayout.FloatField("Initial Jump Velocity", playerController.playerControllerData.initialBurstJump);
         playerController.playerControllerData.jumpVelocityDegradation = EditorGUILayout.FloatField("Jump Velocity Degradation", playerController.playerControllerData.jumpVelocityDegradation);
         
-        playerController.playerControllerData.jumpVelocityDegradationWall = EditorGUILayout.FloatField(new GUIContent("Gravity Friction", "Friction Multiplier when against terrain"), 
+        playerController.playerControllerData.jumpVelocityDegradationWall = EditorGUILayout.FloatField(new GUIContent("Wall Friction", "Friction Multiplier when against terrain"), 
             playerController.playerControllerData.jumpVelocityDegradationWall);
 
 
@@ -529,6 +589,8 @@ public class PlayerController2DEditor : UnityEditor.Editor
                 playerController.playerControllerData.preEmptiveCoyoteTime = EditorGUILayout.FloatField("Pre-Emptive Coyote Time", playerController.playerControllerData.preEmptiveCoyoteTime);
                 break;
         }
+
+        PlayerWallJumpGUI(playerController);
     }
 
     void SlopeMovementSettingsGUI(TwoDTools.PlayerController2D playerController)
